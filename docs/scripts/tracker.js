@@ -140,10 +140,12 @@ function updateScore() {
 function updateAlekStrip() {
   const t = getTotals();
   const parts = [];
-  if (t.goals || t.behinds)  parts.push(`${t.goals}G ${t.behinds}B`);
-  if (t.disposals)           parts.push(`${t.disposalsOk}/${t.disposals}D`);
-  if (t.marks)               parts.push(`${t.marksOk}/${t.marks}M`);
-  if (t.tackles)             parts.push(`${t.tacklesOk}/${t.tackles}T`);
+  // Order: Goals · Behinds · Shots, Marks, Disposals, Tackles
+  if (t.goals || t.behinds || t.goalAttempts)
+    parts.push(`${t.goals}G ${t.behinds}B ${t.goalAttempts}S`);
+  if (t.marks)     parts.push(`${t.marksOk}/${t.marks}M`);
+  if (t.disposals) parts.push(`${t.disposalsOk}/${t.disposals}D`);
+  if (t.tackles)   parts.push(`${t.tacklesOk}/${t.tackles}T`);
   setTxt('alek-stats', parts.length ? parts.join(' · ') : '—');
 }
 
@@ -502,10 +504,10 @@ function buildExportJson() {
       mood:      q.mood,
       notes:     q.notes || '',
       aleksStats: {
+        scoring:   { goals: q.stats.goals, behinds: q.stats.behinds, goalAttempts: q.stats.goalAttempts },
+        marks:     { attempts: q.stats.marks,      successful: q.stats.marksOk     },
         disposals: { attempts: q.stats.disposals,  successful: q.stats.disposalsOk },
         tackles:   { attempts: q.stats.tackles,    successful: q.stats.tacklesOk   },
-        marks:     { attempts: q.stats.marks,      successful: q.stats.marksOk     },
-        scoring:   { goalAttempts: q.stats.goalAttempts, goals: q.stats.goals, behinds: q.stats.behinds },
       },
       teamScore: q.scoreAtEnd || {
         hammondPark: { goals: G.score.hp.goals,  behinds: G.score.hp.behinds,  score: hpT  },
@@ -514,10 +516,10 @@ function buildExportJson() {
     })),
     totals: {
       aleksStats: {
+        scoring:   { goals: t.goals, behinds: t.behinds, goalAttempts: t.goalAttempts },
+        marks:     { attempts: t.marks,     successful: t.marksOk     },
         disposals: { attempts: t.disposals, successful: t.disposalsOk },
         tackles:   { attempts: t.tackles,   successful: t.tacklesOk   },
-        marks:     { attempts: t.marks,     successful: t.marksOk     },
-        scoring:   { goalAttempts: t.goalAttempts, goals: t.goals, behinds: t.behinds },
         points:    t.goals * 6 + t.behinds,
       },
       teamScore: {
@@ -561,6 +563,17 @@ function showSummary() {
   const chipCls = hpWon ? 'win' : oppWon ? 'loss' : 'draw';
   const oppName = (G.opponent || 'Opponent').toUpperCase().substring(0, 11);
 
+  // Home team always renders on the LEFT.
+  const isHome  = G.homeAway === 'home';
+  const hpTeam  = `
+    <div class="summary-team__name">HP BLUE</div>
+    <div class="summary-team__score">${hp.goals}.${hp.behinds} (${hpT})</div>`;
+  const oppTeam = `
+    <div class="summary-team__name">${oppName}</div>
+    <div class="summary-team__score">${opp.goals}.${opp.behinds} (${oppT})</div>`;
+  const leftTeam  = isHome ? hpTeam : oppTeam;
+  const rightTeam = isHome ? oppTeam : hpTeam;
+
   document.getElementById('app').innerHTML = `
     <div class="screen summary-screen">
       <header class="tracker-header">
@@ -572,15 +585,9 @@ function showSummary() {
       </header>
 
       <div class="summary-scoreline">
-        <div class="summary-team">
-          <div class="summary-team__name">HP BLUE</div>
-          <div class="summary-team__score">${hp.goals}.${hp.behinds} (${hpT})</div>
-        </div>
+        <div class="summary-team">${leftTeam}</div>
         <span class="result-chip result-chip--${chipCls} summary-result-chip">${result}</span>
-        <div class="summary-team summary-team--right">
-          <div class="summary-team__name">${oppName}</div>
-          <div class="summary-team__score">${opp.goals}.${opp.behinds} (${oppT})</div>
-        </div>
+        <div class="summary-team summary-team--right">${rightTeam}</div>
       </div>
 
       <div class="summary-quarters">
@@ -591,10 +598,12 @@ function showSummary() {
             <span class="summary-q__pos">${POS_LBL[String(q.position)] ?? '—'}</span>
             <span class="summary-q__stats">
               ${[
-                q.stats.disposalsOk && `${q.stats.disposalsOk}D`,
-                q.stats.marksOk     && `${q.stats.marksOk}M`,
-                q.stats.tacklesOk   && `${q.stats.tacklesOk}T`,
-                q.stats.goals       && `${q.stats.goals}G`,
+                q.stats.goals        && `${q.stats.goals}G`,
+                q.stats.behinds      && `${q.stats.behinds}B`,
+                q.stats.goalAttempts && `${q.stats.goalAttempts}S`,
+                q.stats.marksOk      && `${q.stats.marksOk}M`,
+                q.stats.disposalsOk  && `${q.stats.disposalsOk}D`,
+                q.stats.tacklesOk    && `${q.stats.tacklesOk}T`,
               ].filter(Boolean).join(' · ') || '—'}
             </span>
             ${q.notes ? `<span class="summary-q__note">${q.notes}</span>` : ''}
@@ -613,20 +622,20 @@ function showSummary() {
           </div>
         </div>
         <div class="summary-stat-row">
-          <span class="summary-stat-lbl">Disposals</span>
-          <span class="summary-stat-val">${t.disposals} <em>${t.disposalsOk} ✓</em></span>
-        </div>
-        <div class="summary-stat-row">
-          <span class="summary-stat-lbl">Tackles</span>
-          <span class="summary-stat-val">${t.tackles} <em>${t.tacklesOk} ✓</em></span>
+          <span class="summary-stat-lbl">Goals · Behinds · Shots</span>
+          <span class="summary-stat-val">${t.goals}G · ${t.behinds}B · ${t.goalAttempts}S</span>
         </div>
         <div class="summary-stat-row">
           <span class="summary-stat-lbl">Marks</span>
           <span class="summary-stat-val">${t.marks} <em>${t.marksOk} ✓</em></span>
         </div>
         <div class="summary-stat-row">
-          <span class="summary-stat-lbl">Alek — Goals · Behinds</span>
-          <span class="summary-stat-val">${t.goals}G · ${t.behinds}B</span>
+          <span class="summary-stat-lbl">Disposals</span>
+          <span class="summary-stat-val">${t.disposals} <em>${t.disposalsOk} ✓</em></span>
+        </div>
+        <div class="summary-stat-row">
+          <span class="summary-stat-lbl">Tackles</span>
+          <span class="summary-stat-val">${t.tackles} <em>${t.tacklesOk} ✓</em></span>
         </div>
       </div>
 
@@ -705,6 +714,28 @@ export async function renderTracker(lang, round) {
   const oppShort = (G.opponent || 'Opponent').toUpperCase().substring(0, 10);
   const rdLabel  = G.round ? `RD ${G.round} · ${hpHA}` : 'GAME';
 
+  // Home team always renders on the LEFT, away team on the RIGHT.
+  const hpSide = `
+    <div class="scoreboard__side scoreboard__side--hp scoreboard__side--${isHome ? 'left' : 'right'}">
+      <div class="scoreboard__ha">${hpHA}</div>
+      <div class="scoreboard__name">HP BLUE</div>
+      <button class="scoreboard__btn scoreboard__btn--hp" id="score-hp-btn">
+        <div class="scoreboard__pts" id="hp-pts">${calcTotal(G.score.hp)}</div>
+        <div class="scoreboard__gb"  id="hp-gb">${fmtGB(G.score.hp)}</div>
+      </button>
+    </div>`;
+  const oppSide = `
+    <div class="scoreboard__side scoreboard__side--opp scoreboard__side--${isHome ? 'right' : 'left'}">
+      <div class="scoreboard__ha">${oppHA}</div>
+      <div class="scoreboard__name">${oppShort}</div>
+      <button class="scoreboard__btn" id="score-opp-btn">
+        <div class="scoreboard__pts" id="opp-pts">${calcTotal(G.score.opp)}</div>
+        <div class="scoreboard__gb"  id="opp-gb">${fmtGB(G.score.opp)}</div>
+      </button>
+    </div>`;
+  const leftSide  = isHome ? hpSide : oppSide;
+  const rightSide = isHome ? oppSide : hpSide;
+
   app.innerHTML = `
     <div class="screen tracker-screen">
 
@@ -731,23 +762,9 @@ export async function renderTracker(lang, round) {
       </div>
 
       <section class="scoreboard">
-        <div class="scoreboard__side scoreboard__side--hp">
-          <div class="scoreboard__ha">${hpHA}</div>
-          <div class="scoreboard__name">HP BLUE</div>
-          <button class="scoreboard__btn scoreboard__btn--hp" id="score-hp-btn">
-            <div class="scoreboard__pts" id="hp-pts">${calcTotal(G.score.hp)}</div>
-            <div class="scoreboard__gb"  id="hp-gb">${fmtGB(G.score.hp)}</div>
-          </button>
-        </div>
+        ${leftSide}
         <div class="scoreboard__div">:</div>
-        <div class="scoreboard__side scoreboard__side--opp">
-          <div class="scoreboard__ha">${oppHA}</div>
-          <div class="scoreboard__name">${oppShort}</div>
-          <button class="scoreboard__btn" id="score-opp-btn">
-            <div class="scoreboard__pts" id="opp-pts">${calcTotal(G.score.opp)}</div>
-            <div class="scoreboard__gb"  id="opp-gb">${fmtGB(G.score.opp)}</div>
-          </button>
-        </div>
+        ${rightSide}
       </section>
 
       <div class="alek-strip">
@@ -756,6 +773,11 @@ export async function renderTracker(lang, round) {
       </div>
 
       <div class="stat-btns">
+        <button class="stat-btn" id="btn-mark">
+          <span class="stat-btn__icon">🏉</span>
+          <span class="stat-btn__label">MARK</span>
+          <span class="stat-btn__val" id="val-mark">0/0</span>
+        </button>
         <button class="stat-btn" id="btn-disposal">
           <span class="stat-btn__icon">🤲</span>
           <span class="stat-btn__label">DISPOSAL</span>
@@ -765,11 +787,6 @@ export async function renderTracker(lang, round) {
           <span class="stat-btn__icon">🤼</span>
           <span class="stat-btn__label">TACKLE</span>
           <span class="stat-btn__val" id="val-tackle">0/0</span>
-        </button>
-        <button class="stat-btn" id="btn-mark">
-          <span class="stat-btn__icon">🏉</span>
-          <span class="stat-btn__label">MARK</span>
-          <span class="stat-btn__val" id="val-mark">0/0</span>
         </button>
       </div>
 

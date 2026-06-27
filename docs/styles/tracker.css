@@ -196,7 +196,8 @@
   min-width: 0;
 }
 
-.scoreboard__side--opp { align-items: flex-end; }
+.scoreboard__side--left  { align-items: flex-start; }
+.scoreboard__side--right { align-items: flex-end; }
 
 .scoreboard__ha {
   font-size: 0.55rem;
@@ -254,8 +255,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.scoreboard__side--hp .scoreboard__pts  { color: var(--green-accent); }
-.scoreboard__side--opp .scoreboard__btn { align-items: flex-end; }
+.scoreboard__side--hp .scoreboard__pts    { color: var(--green-accent); }
+.scoreboard__side--right .scoreboard__btn { align-items: flex-end; }
 
 .scoreboard__gb {
   font-size: clamp(0.9rem, 3.5vw, 1.4rem);

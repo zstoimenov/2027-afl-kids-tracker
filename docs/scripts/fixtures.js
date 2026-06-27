@@ -167,19 +167,26 @@ function scoreRow(round, lang, state) {
   const chipClass = hpWon ? 'win' : oppWon ? 'loss' : 'draw';
   const oppName   = (opponent(round) || 'OPP').toUpperCase().substring(0, 11);
 
+  // Home team always renders on the LEFT.
+  const isHome   = round.homeAway === 'home';
+  const hpBlock  = `<span class="score-team__name">HP BLUE</span>
+        <span class="score-team__value">${fmtScore(hp)}</span>`;
+  const oppBlock = `<span class="score-team__name">${oppName}</span>
+        <span class="score-team__value">${fmtScore(opp)}</span>`;
+  const leftBlock  = isHome ? hpBlock : oppBlock;
+  const rightBlock = isHome ? oppBlock : hpBlock;
+
   return `
     <div class="score-row">
       <div class="score-team">
-        <span class="score-team__name">HP BLUE</span>
-        <span class="score-team__value">${fmtScore(hp)}</span>
+        ${leftBlock}
       </div>
       <div class="score-mid">
         <span class="score-sep">·</span>
         <span class="result-chip result-chip--${chipClass}">${chip}</span>
       </div>
       <div class="score-team score-team--right">
-        <span class="score-team__name">${oppName}</span>
-        <span class="score-team__value">${fmtScore(opp)}</span>
+        ${rightBlock}
       </div>
     </div>`;
 }
@@ -249,10 +256,20 @@ export async function renderFixtures(lang) {
 
   function attachListeners() {
     document.querySelectorAll('.card-track-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
         window.location.hash = `#/${btn.dataset.lang}/tracker/${btn.dataset.round}`;
       });
     });
+    // EN only: tapping today's fixture card opens the tracker, ready to start.
+    if (isEn) {
+      document.querySelectorAll('.fixture-card--today').forEach(card => {
+        card.classList.add('fixture-card--tappable');
+        card.addEventListener('click', () => {
+          window.location.hash = `#/en/tracker/${card.dataset.round}`;
+        });
+      });
+    }
     document.querySelectorAll('.card-story-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         window.location.hash = `#/bg/story/${btn.dataset.round}`;

@@ -170,10 +170,10 @@ Landing page with two large flag buttons. No password at this level.
       "mood": "motivated",
       "notes": "",
       "aleksStats": {
-        "disposals": { "attempts": 0, "successful": 0 },
-        "tackles": { "attempts": 0, "successful": 0 },
+        "scoring": { "goals": 0, "behinds": 0, "goalAttempts": 0 },
         "marks": { "attempts": 0, "successful": 0 },
-        "scoring": { "goalAttempts": 0, "goals": 0, "behinds": 0 }
+        "disposals": { "attempts": 0, "successful": 0 },
+        "tackles": { "attempts": 0, "successful": 0 }
       },
       "teamScore": {
         "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
@@ -183,10 +183,10 @@ Landing page with two large flag buttons. No password at this level.
   ],
   "totals": {
     "aleksStats": {
+      "scoring": { "goals": 0, "behinds": 0, "goalAttempts": 0 },
+      "marks": { "attempts": 0, "successful": 0 },
       "disposals": { "attempts": 0, "successful": 0 },
       "tackles": { "attempts": 0, "successful": 0 },
-      "marks": { "attempts": 0, "successful": 0 },
-      "scoring": { "goalAttempts": 0, "goals": 0, "behinds": 0 },
       "points": 0
     },
     "teamScore": {
