@@ -196,7 +196,7 @@
   min-width: 0;
 }
 
-.scoreboard__side--hp { align-items: flex-end; }
+.scoreboard__side--opp { align-items: flex-end; }
 
 .scoreboard__ha {
   font-size: 0.55rem;
@@ -254,7 +254,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.scoreboard__side--hp .scoreboard__pts { color: var(--green-accent); }
+.scoreboard__side--hp .scoreboard__pts  { color: var(--green-accent); }
+.scoreboard__side--opp .scoreboard__btn { align-items: flex-end; }
 
 .scoreboard__gb {
   font-size: clamp(0.9rem, 3.5vw, 1.4rem);
@@ -751,6 +752,32 @@
   margin-left: 6px;
 }
 
+/* Debrief card */
+
+.debrief-card {
+  background: #181820;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.debrief-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.debrief-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
 /* Footer */
 
 .summary-footer {
@@ -814,6 +841,30 @@
 
 .summary-copy-btn:active { background: rgba(255, 255, 255, 0.13); }
 
+.summary-footer__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.summary-new-btn {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 13px;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.summary-new-btn:active { background: rgba(255, 255, 255, 0.13); }
+
 .summary-done-btn {
   appearance: none;
   background: var(--green-accent);
@@ -821,9 +872,9 @@
   border-radius: 13px;
   color: #080810;
   font-family: inherit;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 14px;
   cursor: pointer;
