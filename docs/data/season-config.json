@@ -2,12 +2,12 @@
   "season": 2026,
   "club": "Hammond Park Hurricanes",
   "team": "Hammond Park Blue",
-  "seasonTeamName": "",
+  "seasonTeamName": "The Blues",
   "player": {
     "name": "Alek",
     "number": 13,
     "nicknames": [],
-    "shoeColour": ""
+    "shoeColour": "orange"
   },
   "colours": {
     "home": { "primary": "green", "secondary": "white" },
