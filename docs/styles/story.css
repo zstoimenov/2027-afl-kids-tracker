@@ -78,7 +78,7 @@
 /* ---- Prologue card (special entry at top of BG list) ---- */
 
 .prologue-card {
-  background: #0a2a18;
+  background: #18181e;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 18px;
   padding: 16px 18px;
@@ -92,7 +92,7 @@
 }
 
 .prologue-card:active {
-  background: #0e3520;
+  background: #222228;
 }
 
 .prologue-card__text {

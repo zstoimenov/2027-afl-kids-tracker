@@ -8,6 +8,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  gap: 0;
 }
 
 /* ---- Row 1: Control bar ---- */
@@ -18,32 +19,33 @@
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 8px;
-  padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 7px;
-  background: rgba(5, 28, 14, 0.96);
+  padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 8px;
+  background: rgba(12, 12, 16, 0.98);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .ctrl-undo,
 .ctrl-back {
   appearance: none;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 9px;
-  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.6);
   font-family: inherit;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.06em;
-  padding: 6px 10px;
+  padding: 9px 14px;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.1s, opacity 0.15s;
+  min-height: 40px;
 }
 
 .ctrl-undo:disabled { opacity: 0.25; cursor: default; }
-.ctrl-undo:not(:disabled):active { background: rgba(255, 255, 255, 0.14); }
-.ctrl-back:active { background: rgba(255, 255, 255, 0.14); }
-.ctrl-back { font-size: 1.3rem; padding: 4px 10px; }
+.ctrl-undo:not(:disabled):active { background: rgba(255, 255, 255, 0.16); }
+.ctrl-back:active { background: rgba(255, 255, 255, 0.16); }
+.ctrl-back { font-size: 1.4rem; padding: 6px 14px; }
 
 .ctrl-fixture {
   text-align: center;
@@ -71,46 +73,50 @@
   white-space: nowrap;
 }
 
-/* ---- Row 2: Game bar (Q / Position / Timer / Run) ---- */
+/* ---- Row 2: Game bar — card style ---- */
 
 .game-bar {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
-  background: rgba(9, 30, 16, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 10px 16px;
+  margin: 8px 10px 0;
+  background: rgba(22, 22, 28, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
 }
 
 .game-bar__q {
   appearance: none;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
   color: var(--green-accent);
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 900;
   letter-spacing: 0.05em;
-  padding: 5px 9px;
+  padding: 7px 12px;
   cursor: pointer;
   white-space: nowrap;
+  min-height: 38px;
 }
 
 .game-bar__pos {
   appearance: none;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 7px;
-  color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.55);
   font-family: inherit;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.08em;
-  padding: 5px 8px;
+  padding: 7px 10px;
   cursor: pointer;
-  min-width: 40px;
+  min-width: 44px;
+  min-height: 38px;
   text-align: center;
   transition: color 0.1s, border-color 0.1s;
 }
@@ -127,10 +133,10 @@
 .game-bar__timer {
   flex: 1;
   text-align: center;
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 800;
   letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(255, 255, 255, 0.8);
   font-variant-numeric: tabular-nums;
   cursor: default;
 }
@@ -145,15 +151,16 @@
   appearance: none;
   background: rgba(34, 197, 94, 0.12);
   border: 1px solid rgba(34, 197, 94, 0.3);
-  border-radius: 8px;
+  border-radius: 9px;
   color: var(--green-accent);
   font-family: inherit;
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.07em;
-  padding: 5px 9px;
+  padding: 7px 12px;
   cursor: pointer;
   white-space: nowrap;
+  min-height: 38px;
   transition: background 0.1s;
 }
 
@@ -164,7 +171,7 @@
 
 .game-bar__run:active { background: rgba(34, 197, 94, 0.3); }
 
-/* ---- Scoreboard (dominant section) ---- */
+/* ---- Scoreboard (dominant section) — card frame ---- */
 
 .scoreboard {
   flex: 1;
@@ -173,7 +180,11 @@
   align-items: center;
   justify-content: center;
   gap: 0;
-  padding: 8px 10px;
+  margin: 8px 10px;
+  padding: 10px 14px;
+  background: rgba(16, 16, 22, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 18px;
 }
 
 .scoreboard__side {
@@ -211,12 +222,12 @@
   appearance: none;
   background: transparent;
   border: none;
-  padding: 6px 0;
+  padding: 8px 0;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: inherit;
-  gap: 2px;
+  gap: 3px;
   -webkit-user-select: none;
   user-select: none;
   touch-action: none;
@@ -226,12 +237,12 @@
 
 .scoreboard__btn:active,
 .scoreboard__btn--pressed {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .scoreboard__btn--hp:active,
 .scoreboard__btn--hp.scoreboard__btn--pressed {
-  background: rgba(34, 197, 94, 0.1);
+  background: rgba(34, 197, 94, 0.12);
 }
 
 .scoreboard__pts {
@@ -263,7 +274,7 @@
   line-height: 1;
 }
 
-/* ---- Alek strip ---- */
+/* ---- Alek strip — card style ---- */
 
 .alek-strip {
   flex-shrink: 0;
@@ -271,23 +282,24 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 5px 14px;
-  background: rgba(9, 30, 16, 0.8);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 9px 16px;
+  margin: 0 10px;
+  background: rgba(20, 20, 26, 0.95);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  border-radius: 12px;
 }
 
 .alek-strip__name {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.6);
   white-space: nowrap;
 }
 
 .alek-strip__stats {
-  font-size: 0.82rem;
+  font-size: 0.86rem;
   font-weight: 700;
   color: var(--green-accent);
   letter-spacing: 0.02em;
@@ -298,21 +310,21 @@
   text-overflow: ellipsis;
 }
 
-/* ---- Stat buttons ---- */
+/* ---- Stat buttons — bigger for outdoor / cold weather use ---- */
 
 .stat-btns {
   flex-shrink: 0;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 6px;
-  padding: 7px 10px calc(env(safe-area-inset-bottom, 0px) + 9px);
+  gap: 8px;
+  padding: 8px 10px calc(env(safe-area-inset-bottom, 0px) + 12px);
 }
 
 .stat-btn {
   appearance: none;
-  background: #0d2e1a;
-  border: 2px solid rgba(255, 255, 255, 0.09);
-  border-radius: 14px;
+  background: #1a1a22;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
   color: #fff;
   font-family: inherit;
   cursor: pointer;
@@ -320,10 +332,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 10px 4px;
+  gap: 4px;
+  padding: 14px 4px;
   min-height: 0;
-  height: 76px;
+  height: 110px;
   -webkit-user-select: none;
   user-select: none;
   touch-action: none;
@@ -332,7 +344,7 @@
 
 .stat-btn--tap {
   background: rgba(255, 255, 255, 0.1) !important;
-  border-color: rgba(255, 255, 255, 0.28) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 .stat-btn--ok {
@@ -341,12 +353,12 @@
 }
 
 .stat-btn__icon {
-  font-size: 1.3rem;
+  font-size: 1.55rem;
   line-height: 1;
 }
 
 .stat-btn__label {
-  font-size: 0.52rem;
+  font-size: 0.56rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -354,7 +366,7 @@
 }
 
 .stat-btn__val {
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--green-accent);
   letter-spacing: 0.02em;
@@ -364,7 +376,7 @@
 
 .tracker-header {
   flex-shrink: 0;
-  background: rgba(5, 28, 14, 0.95);
+  background: rgba(12, 12, 16, 0.97);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
@@ -401,7 +413,7 @@
 
 .sheet,
 .fork-sheet {
-  background: #0a2e18;
+  background: #16161e;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-bottom: none;
   border-radius: 22px 22px 0 0;
@@ -715,7 +727,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #091e10;
+  background: #181820;
   border-radius: 10px;
   padding: 10px 14px;
 }
@@ -751,7 +763,7 @@
 }
 
 .game-export-card {
-  background: #091e10;
+  background: #181820;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 14px;
   padding: 12px 14px 10px;
@@ -807,7 +819,7 @@
   background: var(--green-accent);
   border: none;
   border-radius: 13px;
-  color: #05180b;
+  color: #080810;
   font-family: inherit;
   font-size: 0.92rem;
   font-weight: 800;

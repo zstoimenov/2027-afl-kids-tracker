@@ -16,7 +16,7 @@
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(5, 28, 14, 0.94);
+  background: rgba(12, 12, 16, 0.96);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.09);
@@ -133,7 +133,7 @@
 
 .fixture-card {
   position: relative;
-  background: #0d2e1a;
+  background: #1a1a22;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 14px;
   padding: 12px 14px 10px;
@@ -144,7 +144,7 @@
 
 /* Past: darker solid background, muted text (no opacity tricks) */
 .fixture-card--past {
-  background: #091e10;
+  background: #131318;
   border-color: rgba(255, 255, 255, 0.06);
 }
 
@@ -169,14 +169,14 @@
 
 /* Today: solid green-tinted card */
 .fixture-card--today {
-  background: #0a3a20;
+  background: #1e1e28;
   border-color: var(--green-accent);
   box-shadow: 0 0 20px rgba(34, 197, 94, 0.13);
 }
 
 /* TBD: solid dark, dashed border */
 .fixture-card--tbd {
-  background: #0a2815;
+  background: #131318;
   border-style: dashed;
   border-color: rgba(255, 255, 255, 0.08);
 }

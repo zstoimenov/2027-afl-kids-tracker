@@ -139,15 +139,10 @@ function updateScore() {
 function updateAlekStrip() {
   const t = getTotals();
   const parts = [];
-  if (t.goals)           parts.push(`${t.goals}G`);
-  if (t.behinds)         parts.push(`${t.behinds}B`);
-  if (t.disposalsOk)     parts.push(`${t.disposalsOk}D`);
-  if (t.marksOk)         parts.push(`${t.marksOk}M`);
-  if (t.tacklesOk)       parts.push(`${t.tacklesOk}T`);
-  if (t.goalAttempts > t.goals + t.behinds) {
-    const misses = t.goalAttempts - t.goals - t.behinds;
-    parts.push(`${misses} miss`);
-  }
+  if (t.goals || t.behinds)  parts.push(`${t.goals}G ${t.behinds}B`);
+  if (t.disposals)           parts.push(`${t.disposalsOk}/${t.disposals}D`);
+  if (t.marks)               parts.push(`${t.marksOk}/${t.marks}M`);
+  if (t.tackles)             parts.push(`${t.tacklesOk}/${t.tackles}T`);
   setTxt('alek-stats', parts.length ? parts.join(' · ') : '—');
 }
 
@@ -206,9 +201,9 @@ function recordStat(stat, ok) {
 function recordScore(team, scorer, kind) {
   const side = team === 'hp' ? G.score.hp : G.score.opp;
   if (kind === 'goal') side.goals++; else side.behinds++;
-  if (team === 'hp') {
+  if (team === 'hp' && scorer === 'alek') {
     if (kind === 'goal') G.current.stats.goals++; else G.current.stats.behinds++;
-    if (scorer === 'alek') G.current.stats.goalAttempts++;
+    G.current.stats.goalAttempts++;
   }
   G.log.push({ type: 'score', team, scorer, kind });
   saveState();
@@ -230,9 +225,9 @@ function undoLast() {
     case 'score': {
       const side = last.team === 'hp' ? G.score.hp : G.score.opp;
       if (last.kind === 'goal') side.goals--; else side.behinds--;
-      if (last.team === 'hp') {
+      if (last.team === 'hp' && last.scorer === 'alek') {
         if (last.kind === 'goal') G.current.stats.goals--; else G.current.stats.behinds--;
-        if (last.scorer === 'alek') G.current.stats.goalAttempts--;
+        G.current.stats.goalAttempts--;
       }
       break;
     }
@@ -662,9 +657,11 @@ export async function renderTracker(lang, round) {
   const saved = loadState(today);
   if (saved) {
     G = saved;
-    if (!G.log)      G.log      = [];
-    if (!G.current)  G.current  = freshQ();
-    if (!G.quarters) G.quarters = [];
+    if (!G.log)                   G.log             = [];
+    if (!G.current)               G.current         = freshQ();
+    if (!G.quarters)              G.quarters        = [];
+    if (G.quarterDuration == null) G.quarterDuration = 900;
+    if (G.timerRemaining  == null) G.timerRemaining  = G.quarterDuration;
     if (G.status === 'done') { showSummary(); return; }
     resumeTimerIfNeeded();
   } else {

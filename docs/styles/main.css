@@ -35,7 +35,7 @@ body {
   font-family: var(--font);
   color: var(--white);
   background:
-    radial-gradient(120% 80% at 50% 0%, #114a27 0%, var(--green) 55%, #052b14 100%);
+    radial-gradient(120% 80% at 50% 0%, #1a1a22 0%, #0f0f14 55%, #09090d 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior: none;
