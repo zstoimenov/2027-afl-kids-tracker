@@ -216,6 +216,66 @@ function buildCard(round, lang, today) {
     </article>`;
 }
 
+/* ---- PWA install instructions ---- */
+
+function showInstallSheet(lang) {
+  const isEn = lang === 'en';
+  const ua   = navigator.userAgent || '';
+  const isIOS     = /iPad|iPhone|iPod/.test(ua) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(ua);
+
+  const iosSteps = isEn
+    ? ['Open this page in <strong>Safari</strong>.',
+       'Tap the <strong>Share</strong> button — a square with an upward arrow.',
+       'Scroll down and tap <strong>Add to Home Screen</strong>.',
+       'Tap <strong>Add</strong> — the app icon appears on your home screen.']
+    : ['Отворете тази страница в <strong>Safari</strong>.',
+       'Натиснете бутона <strong>Споделяне</strong> — квадратче със стрелка нагоре.',
+       'Превъртете надолу и изберете <strong>Към началния екран</strong>.',
+       'Натиснете <strong>Добави</strong> — иконата ще се появи на началния екран.'];
+
+  const androidSteps = isEn
+    ? ['Open this page in <strong>Chrome</strong>.',
+       'Tap the <strong>⋮</strong> menu (top-right).',
+       'Tap <strong>Install app</strong> (or <strong>Add to Home screen</strong>).',
+       'Confirm — the app icon appears on your home screen.']
+    : ['Отворете тази страница в <strong>Chrome</strong>.',
+       'Натиснете менюто <strong>⋮</strong> (горе вдясно).',
+       'Изберете <strong>Инсталиране на приложението</strong> (или <strong>Добавяне към началния екран</strong>).',
+       'Потвърдете — иконата ще се появи на началния екран.'];
+
+  const block = (title, steps, primary) => `
+    <div class="install-block${primary ? ' install-block--primary' : ''}">
+      <div class="install-block__title">${title}</div>
+      <ol class="install-steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol>
+    </div>`;
+
+  const iosTitle = 'iPhone / iPad (Safari)';
+  const andTitle = 'Android (Chrome)';
+  const ios = block(iosTitle, iosSteps, isIOS);
+  const and = block(andTitle, androidSteps, isAndroid);
+  // Show the detected platform first; on desktop show both, unhighlighted.
+  const finalBlocks = isAndroid ? and + ios : ios + and;
+
+  const overlay = document.createElement('div');
+  overlay.className = 'sheet-overlay';
+  overlay.innerHTML = `
+    <div class="sheet install-sheet">
+      <div class="sheet-title">${isEn ? 'Install the App' : 'Инсталиране на приложението'}</div>
+      <div class="sheet-hint">${isEn
+        ? 'Add it to your home screen — opens full-screen, works offline.'
+        : 'Добавете я на началния екран — отваря се на цял екран и работи офлайн.'}</div>
+      <div class="install-blocks">${finalBlocks}</div>
+      <button class="sheet-cancel" id="install-close">${isEn ? 'CLOSE' : 'ЗАТВОРИ'}</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const close = () => overlay.remove();
+  overlay.querySelector('#install-close').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (!e.target.closest('.install-sheet')) close(); });
+}
+
 /* ---- Screen entry point ---- */
 
 export async function renderFixtures(lang) {
@@ -228,16 +288,20 @@ export async function renderFixtures(lang) {
     ? [
         { href: '#/en/tracker', label: '📊 Track a Game' },
         { href: '#/en',         label: '📅 Fixtures &amp; Results', current: true },
+        { action: 'install',    label: '📲 Install App' },
         { href: '#/',           label: '🏠 Home' },
       ]
     : [
-        { href: '#/bg',                 label: '📅 Мачове &amp; Резултати', current: true },
-        { href: '#/bg/story/prologue',  label: '📖 Историята' },
-        { href: '#/',                   label: '🏠 Начало' },
+        { href: '#/bg',          label: '📅 Мачове &amp; Резултати', current: true },
+        { href: '#/bg/seasons',  label: '📖 Истории' },
+        { action: 'install',     label: '📲 Инсталирай приложението' },
+        { href: '#/',            label: '🏠 Начало' },
       ];
 
   const menuHtml = menuItems.map(it =>
-    `<button class="header-menu__item${it.current ? ' header-menu__item--current' : ''}" data-href="${it.href}">${it.label}</button>`
+    it.action
+      ? `<button class="header-menu__item" data-action="${it.action}">${it.label}</button>`
+      : `<button class="header-menu__item${it.current ? ' header-menu__item--current' : ''}" data-href="${it.href}">${it.label}</button>`
   ).join('');
 
   app.innerHTML = `
@@ -293,8 +357,9 @@ export async function renderFixtures(lang) {
   });
   menuNav.querySelectorAll('.header-menu__item').forEach(item => {
     item.addEventListener('click', () => {
-      const href = item.dataset.href;
+      const { href, action } = item.dataset;
       closeMenu();
+      if (action === 'install') { showInstallSheet(lang); return; }
       // Navigating to the page we're already on won't fire hashchange — just close.
       if (href !== window.location.hash) window.location.hash = href;
     });

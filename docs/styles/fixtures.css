@@ -115,6 +115,61 @@
   background: rgba(34, 197, 94, 0.1);
 }
 
+/* ---- Install instructions sheet ---- */
+
+.install-sheet {
+  max-height: 86dvh;
+  overflow-y: auto;
+}
+
+.install-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.install-block {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px 16px;
+}
+
+.install-block--primary {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.install-block__title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 10px;
+}
+
+.install-block--primary .install-block__title { color: var(--green-accent); }
+
+.install-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.install-steps li {
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.install-steps strong {
+  color: #fff;
+  font-weight: 700;
+}
+
 .screen-header__mid {
   text-align: center;
 }

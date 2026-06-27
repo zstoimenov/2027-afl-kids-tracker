@@ -52,6 +52,78 @@
   font-weight: 500;
 }
 
+/* ---- Season picker ---- */
+
+.season-picker__intro {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 4px 0 18px;
+  line-height: 1.5;
+}
+
+.season-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.season-card {
+  appearance: none;
+  width: 100%;
+  background: #18181e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+
+.season-card:active { background: #222228; }
+
+.season-card__label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--green-accent);
+  margin-bottom: 3px;
+}
+
+.season-card__title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.season-card__sub {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.season-card__arrow {
+  font-size: 1.6rem;
+  color: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+
+/* ---- Full-season story: chapter separation ---- */
+
+.story-chapter + .story-chapter {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 /* ---- Story link button on fixture cards ---- */
 
 .card-story-btn {
