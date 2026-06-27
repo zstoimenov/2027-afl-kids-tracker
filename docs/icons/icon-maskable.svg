@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AFL Kids Tracker">
+  <defs>
+    <linearGradient id="bgm" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#15803d"/>
+      <stop offset="1" stop-color="#0a3d1f"/>
+    </linearGradient>
+    <linearGradient id="ballm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a8541f"/>
+      <stop offset="1" stop-color="#7a3a12"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Full-bleed background for maskable safe zone -->
+  <rect width="512" height="512" fill="url(#bgm)"/>
+
+  <!-- Footy kept within ~80% safe zone -->
+  <g transform="rotate(-35 256 256) scale(0.78) translate(72 72)">
+    <ellipse cx="256" cy="256" rx="118" ry="170" fill="url(#ballm)" stroke="#fff" stroke-width="10"/>
+    <line x1="256" y1="108" x2="256" y2="404" stroke="#fff" stroke-width="12"/>
+    <g stroke="#fff" stroke-width="10" stroke-linecap="round">
+      <line x1="226" y1="170" x2="286" y2="170"/>
+      <line x1="226" y1="206" x2="286" y2="206"/>
+      <line x1="226" y1="306" x2="286" y2="306"/>
+      <line x1="226" y1="342" x2="286" y2="342"/>
+    </g>
+  </g>
+</svg>

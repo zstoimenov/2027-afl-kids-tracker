@@ -1,0 +1,41 @@
+{
+  "round": 0,
+  "date": "",
+  "opponent": "",
+  "homeAway": "home",
+  "quarters": [
+    {
+      "quarter": 1,
+      "position": "",
+      "mood": "neutral",
+      "notes": "",
+      "aleksStats": {
+        "disposals": { "attempts": 0, "successful": 0 },
+        "tackles": { "attempts": 0, "successful": 0 },
+        "marks": { "attempts": 0, "successful": 0 },
+        "scoring": { "goalAttempts": 0, "goals": 0, "behinds": 0 }
+      },
+      "teamScore": {
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 0 }
+      }
+    }
+  ],
+  "totals": {
+    "aleksStats": {
+      "disposals": { "attempts": 0, "successful": 0 },
+      "tackles": { "attempts": 0, "successful": 0 },
+      "marks": { "attempts": 0, "successful": 0 },
+      "scoring": { "goalAttempts": 0, "goals": 0, "behinds": 0 },
+      "points": 0
+    },
+    "teamScore": {
+      "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
+      "opposition": { "goals": 0, "behinds": 0, "score": 0 }
+    }
+  },
+  "debrief": {
+    "didWell": "",
+    "workOn": ""
+  }
+}

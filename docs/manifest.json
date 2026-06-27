@@ -1,0 +1,26 @@
+{
+  "name": "2027 AFL Kids Tracker",
+  "short_name": "AFL Tracker",
+  "description": "Live stats and match stories for Hammond Park Blue.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a3d1f",
+  "theme_color": "#0a3d1f",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+/* =========================================================
+   2027 AFL Kids Tracker — base styles (PWA shell)
+   Aesthetic: Fox Footy broadcast overlay. Green / white,
+   bold typography, mobile-first, one-handed outdoor use.
+   ========================================================= */
+
+:root {
+  --green: #0a3d1f;
+  --green-bright: #15803d;
+  --green-accent: #22c55e;
+  --white: #ffffff;
+  --ink: #0b0f0c;
+  --muted: rgba(255, 255, 255, 0.72);
+
+  --bg-au: #00843d;   /* Aussie green */
+  --bg-bg: #d62612;   /* Bulgarian red */
+
+  --radius: 18px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --font: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--font);
+  color: var(--white);
+  background:
+    radial-gradient(120% 80% at 50% 0%, #114a27 0%, var(--green) 55%, #052b14 100%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ---------------- Landing ---------------- */
+
+.landing {
+  min-height: 100dvh;
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 32px)
+    20px
+    calc(env(safe-area-inset-bottom, 0px) + 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.landing__brand {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.landing__crest img {
+  display: block;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.35));
+}
+
+.landing__title {
+  font-size: clamp(1.9rem, 8vw, 2.8rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 4px 0 0;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.landing__subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+/* ---------------- Flag buttons ---------------- */
+
+.flags {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+.flag {
+  appearance: none;
+  border: 3px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius);
+  color: var(--white);
+  font-family: inherit;
+  cursor: pointer;
+  padding: 26px 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 112px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.flag--en { background: linear-gradient(135deg, #009b48, var(--bg-au)); }
+.flag--bg { background: linear-gradient(135deg, #e23b2a, var(--bg-bg)); }
+
+.flag:active {
+  transform: scale(0.97);
+  filter: brightness(1.05);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.flag__emoji { font-size: 3rem; line-height: 1; }
+
+.flag__label {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+/* ---------------- Footer / status ---------------- */
+
+.landing__footer {
+  text-align: center;
+  min-height: 24px;
+}
+
+.landing__status {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+@media (min-width: 540px) {
+  .flags { flex-direction: row; }
+  .flag { flex-direction: column; justify-content: center; text-align: center; min-height: 200px; }
+}

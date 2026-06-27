@@ -1,0 +1,18 @@
+{
+  "season": 2027,
+  "club": "Hammond Park Hurricanes",
+  "team": "Hammond Park Blue",
+  "seasonTeamName": "",
+  "player": {
+    "name": "Alek",
+    "number": 13,
+    "nicknames": [],
+    "shoeColour": ""
+  },
+  "colours": {
+    "home": { "primary": "green", "secondary": "white" },
+    "away": { "primary": "white", "secondary": "green" }
+  },
+  "homeGround": "Frankland Park",
+  "extras": {}
+}

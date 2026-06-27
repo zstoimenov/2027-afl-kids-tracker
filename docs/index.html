@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0a3d1f" />
+  <meta name="description" content="2027 AFL Kids Tracker — live stats and match stories for Hammond Park Blue." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="AFL Tracker" />
+  <title>2027 AFL Kids Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+  <link rel="apple-touch-icon" href="icons/icon.svg" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <main class="landing" id="landing">
+    <header class="landing__brand">
+      <div class="landing__crest" aria-hidden="true">
+        <img src="icons/icon.svg" alt="" width="72" height="72" />
+      </div>
+      <h1 class="landing__title">AFL Kids Tracker</h1>
+      <p class="landing__subtitle">Hammond Park Blue · Season 2027</p>
+    </header>
+
+    <section class="flags" aria-label="Choose your language">
+      <button class="flag flag--en" type="button" data-lang="en">
+        <span class="flag__emoji" aria-hidden="true">🇦🇺</span>
+        <span class="flag__label">English</span>
+      </button>
+      <button class="flag flag--bg" type="button" data-lang="bg">
+        <span class="flag__emoji" aria-hidden="true">🇧🇬</span>
+        <span class="flag__label">Български</span>
+      </button>
+    </section>
+
+    <footer class="landing__footer">
+      <p id="status" class="landing__status">Tap a flag to begin</p>
+    </footer>
+  </main>
+
+  <script src="scripts/app.js" type="module"></script>
+</body>
+</html>
