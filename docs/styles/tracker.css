@@ -722,113 +722,41 @@
 
 .summary-done-btn:active { filter: brightness(0.9); }
 
-/* ---- GitHub save section ---- */
+/* ---- Game export card ---- */
 
-#github-save-section {
+.game-export-card {
+  background: #091e10;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  padding: 13px 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 5px;
 }
 
-.github-save-btn {
-  appearance: none;
-  background: rgba(34, 197, 94, 0.14);
-  border: 1px solid rgba(34, 197, 94, 0.38);
-  border-radius: 12px;
-  color: var(--green-accent);
-  font-family: inherit;
-  font-size: 0.88rem;
+.game-export-card__label {
+  font-size: 0.58rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
-  padding: 13px;
-  cursor: pointer;
-  transition: background 0.1s;
-  width: 100%;
+  color: rgba(255, 255, 255, 0.28);
 }
 
-.github-save-btn:active { background: rgba(34, 197, 94, 0.25); }
-
-.github-save-btn--loading {
-  opacity: 0.55;
-  cursor: default;
-}
-
-.github-token-form {
-  display: flex;
-  gap: 8px;
-}
-
-.github-token-input {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  color: #fff;
-  font-family: inherit;
-  font-size: 0.82rem;
-  padding: 10px 12px;
-  outline: none;
-  -webkit-appearance: none;
-}
-
-.github-token-input:focus {
-  border-color: rgba(34, 197, 94, 0.5);
-}
-
-.github-token-input::placeholder { color: rgba(255, 255, 255, 0.25); }
-
-.github-token-save-btn {
-  appearance: none;
-  background: rgba(34, 197, 94, 0.18);
-  border: 1px solid rgba(34, 197, 94, 0.35);
-  border-radius: 10px;
+.game-export-card__path {
+  font-family: 'Courier New', 'Courier', monospace;
+  font-size: 0.78rem;
   color: var(--green-accent);
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.07em;
-  padding: 10px 14px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.1s;
+  word-break: break-all;
+  line-height: 1.3;
 }
 
-.github-token-save-btn:active { background: rgba(34, 197, 94, 0.3); }
-
-.github-token-hint {
+.game-export-card__hint {
   font-size: 0.65rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.3);
-  margin: 6px 0 0;
-  padding: 0;
-  text-align: center;
+  margin-bottom: 4px;
 }
 
-.github-token-hint strong { color: rgba(255, 255, 255, 0.5); font-weight: 700; }
-
-.github-save-status {
-  text-align: center;
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 13px;
-  border-radius: 12px;
-}
-
-.github-save-status--ok {
-  background: rgba(34, 197, 94, 0.12);
-  color: var(--green-accent);
-  border: 1px solid rgba(34, 197, 94, 0.25);
-}
-
-.github-save-status--err {
-  background: rgba(255, 100, 100, 0.08);
-  color: rgba(255, 130, 130, 0.9);
-  border: 1px solid rgba(255, 100, 100, 0.2);
-  text-transform: none;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+.game-export-card .summary-copy-btn {
+  margin-top: 2px;
 }

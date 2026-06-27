@@ -1,4 +1,4 @@
-const SHELL_CACHE = 'afl-shell-v6';
+const SHELL_CACHE = 'afl-shell-v7';
 const DATA_CACHE  = 'afl-data-v1';
 
 const SHELL_ASSETS = [
@@ -13,7 +13,6 @@ const SHELL_ASSETS = [
   './scripts/fixtures.js',
   './scripts/tracker.js',
   './scripts/story.js',
-  './scripts/github.js',
   './icons/icon.svg',
   './icons/icon-maskable.svg',
 ];

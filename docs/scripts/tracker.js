@@ -1,5 +1,3 @@
-import { saveGame, loadToken, saveToken, clearToken } from './github.js';
-
 const BASE_SEASON = 2026;
 
 /* ---- State ---- */
@@ -403,73 +401,6 @@ function copyExport(btnId) {
   });
 }
 
-/* ---- GitHub save section ---- */
-
-function renderSaveSection(state) {
-  const el = document.getElementById('github-save-section');
-  if (!el) return;
-
-  if (state.type === 'idle') {
-    el.innerHTML = `
-      <button class="github-save-btn" id="gh-save-btn">↑ SAVE TO GITHUB</button>`;
-    document.getElementById('gh-save-btn').addEventListener('click', onSaveClick);
-
-  } else if (state.type === 'no-token') {
-    el.innerHTML = `
-      <div class="github-token-form">
-        <input class="github-token-input" id="gh-token-input" type="password"
-               placeholder="ghp_…" autocomplete="off" autocorrect="off" spellcheck="false" />
-        <button class="github-token-save-btn" id="gh-token-save-btn">SET</button>
-      </div>
-      <p class="github-token-hint">
-        GitHub token with <strong>contents:write</strong> access
-      </p>`;
-    document.getElementById('gh-token-save-btn').addEventListener('click', () => {
-      const val = (document.getElementById('gh-token-input')?.value || '').trim();
-      if (!val) return;
-      saveToken(val);
-      onSaveClick();
-    });
-    document.getElementById('gh-token-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') document.getElementById('gh-token-save-btn')?.click();
-    });
-
-  } else if (state.type === 'saving') {
-    el.innerHTML = `
-      <button class="github-save-btn github-save-btn--loading" disabled>SAVING…</button>`;
-
-  } else if (state.type === 'success') {
-    el.innerHTML = `
-      <div class="github-save-status github-save-status--ok">✓ SAVED TO GITHUB</div>`;
-
-  } else if (state.type === 'error') {
-    el.innerHTML = `
-      <div class="github-save-status github-save-status--err">${state.msg || 'Save failed'}</div>
-      <button class="github-save-btn" id="gh-save-btn" style="margin-top:6px">RETRY</button>`;
-    document.getElementById('gh-save-btn').addEventListener('click', onSaveClick);
-  }
-}
-
-async function onSaveClick() {
-  if (!loadToken()) {
-    renderSaveSection({ type: 'no-token' });
-    return;
-  }
-  renderSaveSection({ type: 'saving' });
-  try {
-    await saveGame(buildExportJson());
-    try { localStorage.removeItem(lsKey(G.date)); } catch { /* */ }
-    renderSaveSection({ type: 'success' });
-  } catch (err) {
-    if (err.code === 'NO_TOKEN' || err.code === 'AUTH_FAILED') {
-      clearToken();
-      renderSaveSection({ type: 'no-token' });
-    } else {
-      renderSaveSection({ type: 'error', msg: err.message || 'Save failed' });
-    }
-  }
-}
-
 /* ---- Summary ---- */
 
 function showSummary() {
@@ -540,8 +471,14 @@ function showSummary() {
       </div>
 
       <div class="summary-footer">
-        <div id="github-save-section"></div>
-        <button class="summary-copy-btn" id="sum-export">📋 ${isEn ? 'COPY JSON' : 'КОПИРАЙ'}</button>
+        <div class="game-export-card">
+          <div class="game-export-card__label">${isEn ? 'NEW FILE IN GITHUB MOBILE' : 'НОВ ФАЙЛ В GITHUB'}</div>
+          <div class="game-export-card__path">docs/data/games/game-${G.date}.json</div>
+          <div class="game-export-card__hint">${isEn
+            ? 'Add file → Create new file → paste'
+            : 'Добави файл → Нов файл → постави'}</div>
+          <button class="summary-copy-btn" id="sum-export">📋 ${isEn ? 'COPY JSON' : 'КОПИРАЙ JSON'}</button>
+        </div>
         <button class="summary-done-btn" id="sum-done">${isEn ? 'BACK TO FIXTURES' : 'КЪМ МАЧОВЕТЕ'}</button>
       </div>
     </div>`;
@@ -549,8 +486,6 @@ function showSummary() {
   document.getElementById('sum-back').addEventListener('click',   () => { window.location.hash = `#/${_lang}`; });
   document.getElementById('sum-done').addEventListener('click',   () => { window.location.hash = `#/${_lang}`; });
   document.getElementById('sum-export').addEventListener('click', () => copyExport('sum-export'));
-
-  renderSaveSection({ type: 'idle' });
 }
 
 /* ---- Date label ---- */
