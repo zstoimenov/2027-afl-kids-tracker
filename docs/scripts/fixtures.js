@@ -176,10 +176,17 @@ function cardBg(round, state) {
 
 /* ---- Score row ---- */
 
-function scoreRow(round, lang) {
+function scoreRow(round, lang, state) {
   const isEn = lang === 'en';
 
   if (!hasResult(round)) {
+    if (state === 'today') {
+      return `<div class="score-dash score-dash--track">
+        <button class="card-track-btn" data-round="${round.round}" data-lang="${lang}">
+          ▶ ${isEn ? 'TRACK GAME' : 'ПРОСЛЕДИ'}
+        </button>
+      </div>`;
+    }
     return `<div class="score-dash">— · —</div>`;
   }
 
@@ -235,7 +242,7 @@ function buildCard(round, lang, today, editMode) {
     <article class="${classes.join(' ')}" data-round="${round.round}" data-state="${state}">
       ${editBtn}
       ${inner}
-      ${scoreRow(round, lang)}
+      ${scoreRow(round, lang, state)}
     </article>`;
 }
 
@@ -424,6 +431,11 @@ export async function renderFixtures(lang) {
       btn.addEventListener('click', () => {
         const r = currentRounds.find(x => x.round === rnd);
         if (r) openEditModal(r, lang, currentSeason, today, rerender);
+      });
+    });
+    document.querySelectorAll('.card-track-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.location.hash = `#/${btn.dataset.lang}/tracker/${btn.dataset.round}`;
       });
     });
   }

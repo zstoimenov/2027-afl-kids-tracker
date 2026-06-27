@@ -1,4 +1,5 @@
 import { renderFixtures } from './fixtures.js';
+import { renderTracker }  from './tracker.js';
 
 const LANDING_HTML = document.getElementById('app').innerHTML;
 
@@ -9,6 +10,10 @@ function renderLanding() {
     btn.addEventListener('click', () => {
       window.location.hash = `#/${btn.dataset.lang}`;
     });
+  });
+  const trackBtn = app.querySelector('#track-btn');
+  if (trackBtn) trackBtn.addEventListener('click', () => {
+    window.location.hash = '#/en/tracker';
   });
 }
 
@@ -21,6 +26,18 @@ const ROUTES = {
 
 function route() {
   const hash = window.location.hash.replace(/^#/, '') || '/';
+
+  if (hash.startsWith('/en/tracker')) {
+    const seg = hash.split('/')[3];
+    renderTracker('en', seg ? parseInt(seg, 10) : null);
+    return;
+  }
+  if (hash.startsWith('/bg/tracker')) {
+    const seg = hash.split('/')[3];
+    renderTracker('bg', seg ? parseInt(seg, 10) : null);
+    return;
+  }
+
   (ROUTES[hash] ?? renderLanding)();
 }
 
