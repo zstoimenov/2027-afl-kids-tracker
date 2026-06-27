@@ -10,9 +10,9 @@
       "ground": "Frankland Park",
       "homeAway": "home",
       "result": {
-        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
-        "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 117 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 12 },
+        "winner": "hammondPark"
       }
     },
     {
@@ -24,9 +24,9 @@
       "ground": "Frankland Park",
       "homeAway": "away",
       "result": {
-        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
-        "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 122 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 8 },
+        "winner": "hammondPark"
       }
     },
     {
@@ -40,7 +40,7 @@
       "result": {
         "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
         "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "winner": "hammondPark"
       }
     },
     {
@@ -52,9 +52,9 @@
       "ground": "Frankland Park",
       "homeAway": "home",
       "result": {
-        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
-        "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 81 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 33 },
+        "winner": "hammondPark"
       }
     },
     {
@@ -66,9 +66,9 @@
       "ground": "Frankland Park",
       "homeAway": "home",
       "result": {
-        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
-        "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 51 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 40 },
+        "winner": "hammondPark"
       }
     },
     {
@@ -80,9 +80,9 @@
       "ground": "Frankland Park",
       "homeAway": "home",
       "result": {
-        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
-        "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 40 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 56 },
+        "winner": "opposition"
       }
     },
     {
@@ -94,9 +94,9 @@
       "ground": "Springdale Oval",
       "homeAway": "away",
       "result": {
-        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
-        "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 98 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 16 },
+        "winner": "hammondPark"
       }
     },
     {
@@ -108,9 +108,9 @@
       "ground": "Frankland Park",
       "homeAway": "home",
       "result": {
-        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
-        "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 80 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 26 },
+        "winner": "hammondPark"
       }
     },
     {
@@ -122,9 +122,9 @@
       "ground": "Orelia District Sports Complex",
       "homeAway": "away",
       "result": {
-        "hammondPark": { "goals": 0, "behinds": 0, "score": 0 },
-        "opposition": { "goals": 0, "behinds": 0, "score": 0 },
-        "winner": ""
+        "hammondPark": { "goals": 0, "behinds": 0, "score": 103 },
+        "opposition": { "goals": 0, "behinds": 0, "score": 26 },
+        "winner": "hammondPark"
       }
     },
     {

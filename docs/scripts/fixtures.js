@@ -36,6 +36,8 @@ function fmtDate(dateStr, lang) {
 }
 
 function fmtScore(t) {
+  if (t.goals === 0 && t.behinds === 0 && t.score > 0) return `${t.score}`;
+  if (t.goals === 0 && t.behinds === 0) return '—';
   return `${t.goals}.${t.behinds} (${t.score})`;
 }
 
@@ -225,6 +227,8 @@ function scoreRow(round, lang, state) {
 
 /* ---- Full card ---- */
 
+const STORY_ROUNDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
 function buildCard(round, lang, today, editMode) {
   const state   = gameState(round, today);
   const classes = ['fixture-card'];
@@ -238,11 +242,16 @@ function buildCard(round, lang, today, editMode) {
     ? `<button class="card-edit-btn" data-round="${round.round}" aria-label="Edit round ${round.round}">✎</button>`
     : '';
 
+  const storyBtn = lang === 'bg' && (state === 'past' || (state === 'today' && hasResult(round))) && STORY_ROUNDS.has(round.round)
+    ? `<button class="card-story-btn" data-round="${round.round}">📖 Прочети историята</button>`
+    : '';
+
   return `
     <article class="${classes.join(' ')}" data-round="${round.round}" data-state="${state}">
       ${editBtn}
       ${inner}
       ${scoreRow(round, lang, state)}
+      ${storyBtn}
     </article>`;
 }
 
@@ -438,6 +447,17 @@ export async function renderFixtures(lang) {
         window.location.hash = `#/${btn.dataset.lang}/tracker/${btn.dataset.round}`;
       });
     });
+    document.querySelectorAll('.card-story-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        window.location.hash = `#/bg/story/${btn.dataset.round}`;
+      });
+    });
+    const prologueCard = document.getElementById('prologue-card');
+    if (prologueCard) {
+      prologueCard.addEventListener('click', () => {
+        window.location.hash = '#/bg/story/prologue';
+      });
+    }
   }
 
   async function loadAndRender(year) {
@@ -454,7 +474,17 @@ export async function renderFixtures(lang) {
 
       currentSeason = data.season;
       currentRounds = applyOverrides(data.rounds, currentSeason);
-      list.innerHTML = currentRounds.map(r => buildCard(r, lang, today, editMode)).join('');
+
+      const prologueHtml = lang === 'bg' ? `
+        <button class="prologue-card" id="prologue-card" type="button">
+          <div class="prologue-card__text">
+            <div class="prologue-card__label">Пролог</div>
+            <div class="prologue-card__title">Оранжевите бутонки</div>
+          </div>
+          <span class="prologue-card__arrow">›</span>
+        </button>` : '';
+
+      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, editMode)).join('');
       attachEditListeners();
 
       const todayCard = list.querySelector('[data-state="today"]');

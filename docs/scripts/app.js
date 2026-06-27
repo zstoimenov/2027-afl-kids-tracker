@@ -1,5 +1,6 @@
 import { renderFixtures } from './fixtures.js';
 import { renderTracker }  from './tracker.js';
+import { renderStory }    from './story.js';
 
 const LANDING_HTML = document.getElementById('app').innerHTML;
 
@@ -35,6 +36,12 @@ function route() {
   if (hash.startsWith('/bg/tracker')) {
     const seg = hash.split('/')[3];
     renderTracker('bg', seg ? parseInt(seg, 10) : null);
+    return;
+  }
+
+  if (hash.startsWith('/bg/story')) {
+    const seg = hash.split('/')[3] || 'prologue';
+    renderStory('bg', seg);
     return;
   }
 
