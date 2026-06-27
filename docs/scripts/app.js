@@ -1,6 +1,7 @@
 import { renderFixtures } from './fixtures.js';
 import { renderTracker }  from './tracker.js';
 import { renderStory, renderSeasonPicker, renderSeasonStory } from './story.js';
+import { isUnlocked, renderLock } from './auth.js';
 
 const LANDING_HTML = document.getElementById('app').innerHTML;
 
@@ -14,43 +15,47 @@ function renderLanding() {
   });
 }
 
-const ROUTES = {
-  '':    renderLanding,
-  '/':   renderLanding,
-  '/en': () => renderFixtures('en'),
-  '/bg': () => renderFixtures('bg'),
-};
+// Gate a render behind the side's password (whole EN side / whole BG side).
+// Once unlocked, it stays unlocked for the rest of the session.
+function guard(side, render) {
+  if (isUnlocked(side)) render();
+  else renderLock(side, render);
+}
 
 function route() {
   const hash = window.location.hash.replace(/^#/, '') || '/';
 
   if (hash.startsWith('/en/tracker')) {
     const seg = hash.split('/')[3];
-    renderTracker('en', seg ? parseInt(seg, 10) : null);
+    guard('en', () => renderTracker('en', seg ? parseInt(seg, 10) : null));
     return;
   }
   if (hash.startsWith('/bg/seasons')) {
-    renderSeasonPicker('bg');
+    guard('bg', () => renderSeasonPicker('bg'));
     return;
   }
   if (hash.startsWith('/bg/season/')) {
     const year = parseInt(hash.split('/')[3], 10);
-    renderSeasonStory('bg', year);
+    guard('bg', () => renderSeasonStory('bg', year));
     return;
   }
   if (hash.startsWith('/bg/story')) {
     // Forms: /bg/story/<id>  or  /bg/story/<year>/<id>
     const parts = hash.split('/').filter(Boolean); // ['bg','story', a, b?]
-    if (parts.length >= 4) {
-      const year = parseInt(parts[2], 10);
-      renderStory('bg', parts[3], Number.isNaN(year) ? undefined : year);
-    } else {
-      renderStory('bg', parts[2] || 'prologue');
-    }
+    guard('bg', () => {
+      if (parts.length >= 4) {
+        const year = parseInt(parts[2], 10);
+        renderStory('bg', parts[3], Number.isNaN(year) ? undefined : year);
+      } else {
+        renderStory('bg', parts[2] || 'prologue');
+      }
+    });
     return;
   }
+  if (hash === '/en') { guard('en', () => renderFixtures('en')); return; }
+  if (hash === '/bg') { guard('bg', () => renderFixtures('bg')); return; }
 
-  (ROUTES[hash] ?? renderLanding)();
+  renderLanding();
 }
 
 window.addEventListener('hashchange', route);
