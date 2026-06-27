@@ -69,12 +69,82 @@
   line-height: 1;
 }
 
-.screen-header__season {
-  text-align: right;
+/* ---- Edit toggle (header col 3) ---- */
+
+.edit-toggle-btn {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 1.05rem;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.1s, color 0.1s;
+  justify-self: end;
+}
+
+.edit-toggle-btn--active {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: var(--green-accent);
+}
+
+.edit-toggle-btn:active { background: rgba(255, 255, 255, 0.15); }
+
+/* ---- Year selector bar ---- */
+
+.year-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px;
+  background: rgba(9, 30, 16, 0.7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.year-btn {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: inherit;
+  font-size: 1.5rem;
+  line-height: 1;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 8px;
+  transition: background 0.1s, color 0.1s;
+}
+
+.year-btn:disabled {
+  color: rgba(255, 255, 255, 0.15);
+  cursor: default;
+}
+
+.year-btn:not(:disabled):active {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.year-label {
   font-size: 1rem;
   font-weight: 800;
+  letter-spacing: 0.04em;
   color: var(--green-accent);
-  letter-spacing: 0.02em;
+  min-width: 56px;
+  text-align: center;
 }
 
 /* ---- Scrollable list ---- */
@@ -91,7 +161,8 @@
 /* ---- Base card ---- */
 
 .fixture-card {
-  background: rgba(255, 255, 255, 0.055);
+  position: relative;
+  background: #0d2e1a;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: 14px;
   padding: 12px 14px 10px;
@@ -100,21 +171,73 @@
   gap: 7px;
 }
 
+/* Past: darker solid background, muted text (no opacity tricks) */
 .fixture-card--past {
-  opacity: 0.6;
+  background: #091e10;
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
+.fixture-card--past .fixture-card__opponent,
+.fixture-card--past .fixture-card__narrative {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.fixture-card--past .fixture-card__narrative strong {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.fixture-card--past .round-label,
+.fixture-card--past .date-label {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.fixture-card--past .venue-name,
+.fixture-card--past .venue-time {
+  color: rgba(255, 255, 255, 0.22);
+}
+
+/* Today: solid green-tinted card */
 .fixture-card--today {
-  opacity: 1;
+  background: #0a3a20;
   border-color: var(--green-accent);
-  background: rgba(34, 197, 94, 0.07);
-  box-shadow: 0 0 18px rgba(34, 197, 94, 0.12);
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.13);
 }
 
+/* TBD: solid dark, dashed border */
 .fixture-card--tbd {
-  opacity: 0.35;
+  background: #0a2815;
   border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.08);
 }
+
+.fixture-card--tbd .fixture-card__opponent,
+.fixture-card--tbd .fixture-card__narrative {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ---- Card inline edit button ---- */
+
+.card-edit-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.75rem;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.1s;
+}
+
+.card-edit-btn:active { background: rgba(255, 255, 255, 0.2); }
 
 /* ---- Card top row: round · date · home/away ---- */
 
@@ -337,7 +460,7 @@
   margin-top: 1px;
 }
 
-/* ---- Loading / error states ---- */
+/* ---- Loading / error / coming-soon states ---- */
 
 .screen-loading,
 .screen-error {
@@ -348,4 +471,235 @@
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.4);
   letter-spacing: 0.05em;
+  padding: 40px 20px;
+}
+
+.screen-coming-soon {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 60px 20px;
+}
+
+.coming-soon__icon { font-size: 3rem; line-height: 1; }
+
+.coming-soon__text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.38);
+  letter-spacing: 0.05em;
+  text-align: center;
+}
+
+/* ---- Edit modal (bottom sheet) ---- */
+
+.edit-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.edit-modal[hidden] { display: none; }
+
+.edit-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+}
+
+.edit-modal__sheet {
+  position: relative;
+  background: #0d2e1a;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  max-height: 82dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.edit-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.edit-modal__rd {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  white-space: nowrap;
+}
+
+.edit-modal__title {
+  flex: 1;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.edit-modal__close {
+  appearance: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.75rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.edit-modal__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 16px 6px;
+}
+
+.edit-modal__footer {
+  padding: 12px 16px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.edit-modal__save {
+  appearance: none;
+  background: var(--green-accent);
+  border: none;
+  border-radius: 12px;
+  color: #05180b;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  width: 100%;
+  padding: 14px;
+  cursor: pointer;
+  transition: filter 0.1s;
+}
+
+.edit-modal__save:active { filter: brightness(0.9); }
+
+/* ---- Score entry grid (result editor) ---- */
+
+.edit-score-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+.edit-team {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.edit-team__label {
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+  text-align: center;
+}
+
+.edit-score-inputs {
+  display: flex;
+  gap: 6px;
+}
+
+.edit-score-lbl {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  cursor: default;
+}
+
+.edit-score-lbl input {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 10px 4px;
+  width: 100%;
+  -moz-appearance: textfield;
+}
+
+.edit-score-lbl input::-webkit-outer-spin-button,
+.edit-score-lbl input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.edit-vs {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-top: 28px;
+  align-self: start;
+}
+
+/* ---- Fixture detail form (upcoming editor) ---- */
+
+.edit-fixture-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  cursor: default;
+}
+
+.edit-field input,
+.edit-field select {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 12px;
+  width: 100%;
+  appearance: none;
 }
