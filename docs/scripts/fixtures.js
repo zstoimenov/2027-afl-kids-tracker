@@ -191,11 +191,30 @@ function scoreRow(round, lang, state) {
     </div>`;
 }
 
+/* ---- Story metadata (which rounds have a story, for the viewed season) ---- */
+
+async function loadStoryMeta(year) {
+  try {
+    const resp = await fetch(`./data/stories/${year}.json`);
+    if (!resp.ok) return { rounds: new Set(), prologue: null };
+    const data = await resp.json();
+    return {
+      rounds:   new Set((data.rounds || []).map(r => r.round)),
+      prologue: data.prologue || null,
+    };
+  } catch {
+    return { rounds: new Set(), prologue: null };
+  }
+}
+
+// "Пролог — Оранжевите бутонки" → "Оранжевите бутонки"
+function prologueShort(title) {
+  return (title || '').replace(/^Пролог\s*[—–-]\s*/i, '').trim() || title || 'Пролог';
+}
+
 /* ---- Full card ---- */
 
-const STORY_ROUNDS = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-
-function buildCard(round, lang, today) {
+function buildCard(round, lang, today, year, storyRounds) {
   const state   = gameState(round, today);
   const classes = ['fixture-card'];
   if (state === 'today')     classes.push('fixture-card--today');
@@ -204,8 +223,8 @@ function buildCard(round, lang, today) {
 
   const inner = lang === 'bg' ? cardBg(round, state) : cardEn(round, state);
 
-  const storyBtn = lang === 'bg' && (state === 'past' || (state === 'today' && hasResult(round))) && STORY_ROUNDS.has(round.round)
-    ? `<button class="card-story-btn" data-round="${round.round}">📖 Прочети историята</button>`
+  const storyBtn = lang === 'bg' && (state === 'past' || (state === 'today' && hasResult(round))) && storyRounds.has(round.round)
+    ? `<button class="card-story-btn" data-round="${round.round}" data-year="${year}">📖 Прочети историята</button>`
     : '';
 
   return `
@@ -386,13 +405,13 @@ export async function renderFixtures(lang) {
     }
     document.querySelectorAll('.card-story-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        window.location.hash = `#/bg/story/${btn.dataset.round}`;
+        window.location.hash = `#/bg/story/${btn.dataset.year}/${btn.dataset.round}`;
       });
     });
     const prologueCard = document.getElementById('prologue-card');
     if (prologueCard) {
       prologueCard.addEventListener('click', () => {
-        window.location.hash = '#/bg/story/prologue';
+        window.location.hash = `#/bg/story/${prologueCard.dataset.year}/prologue`;
       });
     }
   }
@@ -411,16 +430,21 @@ export async function renderFixtures(lang) {
 
       currentRounds = data.rounds;
 
-      const prologueHtml = lang === 'bg' ? `
-        <button class="prologue-card" id="prologue-card" type="button">
+      // Discover which rounds (and prologue) have a story for THIS season.
+      const story = lang === 'bg'
+        ? await loadStoryMeta(year)
+        : { rounds: new Set(), prologue: null };
+
+      const prologueHtml = (lang === 'bg' && story.prologue) ? `
+        <button class="prologue-card" id="prologue-card" data-year="${year}" type="button">
           <div class="prologue-card__text">
             <div class="prologue-card__label">Пролог</div>
-            <div class="prologue-card__title">Оранжевите бутонки</div>
+            <div class="prologue-card__title">${prologueShort(story.prologue.title)}</div>
           </div>
           <span class="prologue-card__arrow">›</span>
         </button>` : '';
 
-      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today)).join('');
+      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds)).join('');
       attachListeners();
 
       const todayCard = list.querySelector('[data-state="today"]');

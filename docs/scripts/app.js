@@ -39,8 +39,14 @@ function route() {
     return;
   }
   if (hash.startsWith('/bg/story')) {
-    const seg = hash.split('/')[3] || 'prologue';
-    renderStory('bg', seg);
+    // Forms: /bg/story/<id>  or  /bg/story/<year>/<id>
+    const parts = hash.split('/').filter(Boolean); // ['bg','story', a, b?]
+    if (parts.length >= 4) {
+      const year = parseInt(parts[2], 10);
+      renderStory('bg', parts[3], Number.isNaN(year) ? undefined : year);
+    } else {
+      renderStory('bg', parts[2] || 'prologue');
+    }
     return;
   }
 
