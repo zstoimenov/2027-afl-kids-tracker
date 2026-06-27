@@ -1,6 +1,6 @@
 import { renderFixtures } from './fixtures.js';
 import { renderTracker }  from './tracker.js';
-import { renderStory }    from './story.js';
+import { renderStory, renderSeasonPicker, renderSeasonStory } from './story.js';
 
 const LANDING_HTML = document.getElementById('app').innerHTML;
 
@@ -27,6 +27,15 @@ function route() {
   if (hash.startsWith('/en/tracker')) {
     const seg = hash.split('/')[3];
     renderTracker('en', seg ? parseInt(seg, 10) : null);
+    return;
+  }
+  if (hash.startsWith('/bg/seasons')) {
+    renderSeasonPicker('bg');
+    return;
+  }
+  if (hash.startsWith('/bg/season/')) {
+    const year = parseInt(hash.split('/')[3], 10);
+    renderSeasonStory('bg', year);
     return;
   }
   if (hash.startsWith('/bg/story')) {
