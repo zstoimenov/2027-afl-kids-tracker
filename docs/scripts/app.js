@@ -12,10 +12,6 @@ function renderLanding() {
       window.location.hash = `#/${btn.dataset.lang}`;
     });
   });
-  const trackBtn = app.querySelector('#track-btn');
-  if (trackBtn) trackBtn.addEventListener('click', () => {
-    window.location.hash = '#/en/tracker';
-  });
 }
 
 const ROUTES = {

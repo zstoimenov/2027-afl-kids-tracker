@@ -223,6 +223,23 @@ export async function renderFixtures(lang) {
   const isEn  = lang === 'en';
   const today = new Date().toISOString().split('T')[0];
 
+  // Header menu — only links to pages that exist, per language.
+  const menuItems = isEn
+    ? [
+        { href: '#/en/tracker', label: '📊 Track a Game' },
+        { href: '#/en',         label: '📅 Fixtures &amp; Results', current: true },
+        { href: '#/',           label: '🏠 Home' },
+      ]
+    : [
+        { href: '#/bg',                 label: '📅 Мачове &amp; Резултати', current: true },
+        { href: '#/bg/story/prologue',  label: '📖 Историята' },
+        { href: '#/',                   label: '🏠 Начало' },
+      ];
+
+  const menuHtml = menuItems.map(it =>
+    `<button class="header-menu__item${it.current ? ' header-menu__item--current' : ''}" data-href="${it.href}">${it.label}</button>`
+  ).join('');
+
   app.innerHTML = `
     <div class="screen">
       <header class="screen-header">
@@ -231,7 +248,10 @@ export async function renderFixtures(lang) {
           <div class="screen-header__club">Hammond Park Blue</div>
           <h1 class="screen-header__title">${isEn ? 'Fixtures &amp; Results' : 'Мачове &amp; Резултати'}</h1>
         </div>
-        <div style="width:40px"></div>
+        <div class="header-menu-wrap">
+          <button class="menu-btn" id="menu-btn" aria-label="${isEn ? 'Menu' : 'Меню'}" aria-expanded="false" aria-haspopup="true">☰</button>
+          <nav class="header-menu" id="header-menu" hidden>${menuHtml}</nav>
+        </div>
       </header>
 
       <div class="year-bar">
@@ -249,6 +269,35 @@ export async function renderFixtures(lang) {
 
   document.getElementById('back-btn').addEventListener('click', () => {
     window.location.hash = '#/';
+  });
+
+  // ---- Header menu ----
+  const menuBtn  = document.getElementById('menu-btn');
+  const menuNav  = document.getElementById('header-menu');
+
+  function closeMenu() {
+    menuNav.hidden = true;
+    menuBtn.setAttribute('aria-expanded', 'false');
+    document.removeEventListener('click', onOutside);
+  }
+  function onOutside(e) {
+    if (!e.target.closest('.header-menu-wrap')) closeMenu();
+  }
+  menuBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = menuNav.hidden;
+    menuNav.hidden = !open;
+    menuBtn.setAttribute('aria-expanded', String(open));
+    if (open) document.addEventListener('click', onOutside);
+    else document.removeEventListener('click', onOutside);
+  });
+  menuNav.querySelectorAll('.header-menu__item').forEach(item => {
+    item.addEventListener('click', () => {
+      const href = item.dataset.href;
+      closeMenu();
+      // Navigating to the page we're already on won't fire hashchange — just close.
+      if (href !== window.location.hash) window.location.hash = href;
+    });
   });
 
   let selectedYear  = parseInt(today.slice(0, 4), 10);
