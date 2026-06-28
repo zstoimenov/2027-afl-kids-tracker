@@ -20,6 +20,21 @@
   --bg-au: #00843d;   /* Aussie green */
   --bg-bg: #d62612;   /* Bulgarian red */
 
+  /* ---- Glass-morphism design system ---- */
+  --t: 150ms ease-in-out;                  /* the one transition timing */
+  --glass: rgba(255, 255, 255, 0.045);     /* default glass fill */
+  --glass-strong: rgba(255, 255, 255, 0.08);
+  --blur: blur(16px) saturate(135%);
+  /* Edges are drawn with shadow, never a flat border */
+  --hairline: inset 0 0 0 1px rgba(255, 255, 255, 0.09);
+  --edge-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+  --lift: 0 10px 30px rgba(0, 0, 0, 0.40);
+  --lift-sm: 0 4px 14px rgba(0, 0, 0, 0.30);
+  --press: inset 0 3px 9px rgba(0, 0, 0, 0.50);
+  --text-hi: rgba(255, 255, 255, 0.96);
+  --text-mid: rgba(255, 255, 255, 0.60);
+  --text-lo: rgba(255, 255, 255, 0.40);
+
   --radius: 18px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -39,13 +54,37 @@ html, body {
 body {
   font-family: var(--font);
   color: var(--white);
+  /* Near-black base with ambient glows so glass surfaces have something to refract */
   background:
-    radial-gradient(120% 80% at 50% 0%, #1a1a22 0%, #0f0f14 55%, #09090d 100%);
+    radial-gradient(80% 55% at 50% -8%, rgba(34, 197, 94, 0.10) 0%, rgba(34, 197, 94, 0) 60%),
+    radial-gradient(70% 50% at 100% 0%, rgba(120, 150, 190, 0.08) 0%, rgba(120, 150, 190, 0) 55%),
+    radial-gradient(120% 90% at 50% 100%, #12121a 0%, #0c0c12 55%, #08080c 100%);
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+}
+
+/* ---- Thin-line icons ---- */
+
+.icn {
+  width: 1.5em;
+  height: 1.5em;
+  display: block;
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+/* ---- Reusable glass surface (edges via shadow, not border) ---- */
+
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top), var(--lift-sm);
+  border-radius: 16px;
 }
 
 /* ---------------- Landing ---------------- */
@@ -106,28 +145,38 @@ body {
 
 .flag {
   appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: none;
   border-radius: var(--radius);
-  color: var(--white);
+  color: var(--text-hi);
   font-family: inherit;
   cursor: pointer;
-  padding: 18px 22px;
+  padding: 20px 22px;
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 18px;
   text-align: left;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top), var(--lift);
+  transition: transform var(--t), box-shadow var(--t), background var(--t);
 }
 
-.flag--en { background: linear-gradient(135deg, #0d8c44, #00843d); }
-.flag--bg { background: linear-gradient(135deg, #c03323, #d62612); }
+/* National colour as a translucent glow over the glass, not a flat fill */
+.flag--en {
+  background:
+    radial-gradient(130% 100% at 0% 50%, rgba(34, 197, 94, 0.30) 0%, rgba(34, 197, 94, 0.04) 60%),
+    var(--glass);
+}
+.flag--bg {
+  background:
+    radial-gradient(130% 100% at 0% 50%, rgba(214, 38, 18, 0.30) 0%, rgba(214, 38, 18, 0.04) 60%),
+    var(--glass);
+}
 
 .flag:active {
-  transform: scale(0.98);
-  filter: brightness(1.06);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  transform: translateY(1px) scale(0.985);
+  box-shadow: var(--hairline), var(--press);
 }
 
 .flag__emoji {
@@ -166,6 +215,43 @@ body {
   font-weight: 300;
 }
 
+/* ---- Landing footer: Bulgarian install prompt (home screen only) ---- */
+
+.landing__footer {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  justify-content: center;
+}
+
+.landing__install {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  color: var(--text-mid);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top);
+  transition: transform var(--t), box-shadow var(--t), color var(--t);
+}
+
+.landing__install .icn { width: 18px; height: 18px; }
+.landing__install:active {
+  transform: translateY(1px) scale(0.98);
+  color: var(--text-hi);
+  box-shadow: var(--hairline), var(--press);
+}
+
 /* ---------------- Password lock ---------------- */
 
 .lock-screen {
@@ -183,13 +269,28 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding: 34px 26px 26px;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top), var(--lift);
+  border-radius: 22px;
 }
 
 .lock-icon {
-  font-size: 2.2rem;
-  line-height: 1;
-  margin-bottom: 14px;
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--green-accent);
+  background: rgba(34, 197, 94, 0.10);
+  border-radius: 14px;
+  box-shadow: var(--hairline);
 }
+
+.lock-icon .icn { width: 24px; height: 24px; }
 
 .lock-eyebrow {
   font-size: 0.66rem;
@@ -225,10 +326,10 @@ body {
 
 .lock-input {
   width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.22);
+  border: none;
   border-radius: 12px;
-  color: #fff;
+  color: var(--text-hi);
   font-family: inherit;
   font-size: 1.1rem;
   font-weight: 700;
@@ -237,24 +338,25 @@ body {
   padding: 16px;
   outline: none;
   -webkit-appearance: none;
-  transition: border-color 0.12s;
+  box-shadow: var(--hairline);
+  transition: box-shadow var(--t);
 }
 
-.lock-input:focus { border-color: var(--green-accent); }
-.lock-input::placeholder { color: rgba(255, 255, 255, 0.3); letter-spacing: 0.04em; }
+.lock-input:focus { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.65), 0 0 0 4px rgba(34, 197, 94, 0.12); }
+.lock-input::placeholder { color: var(--text-lo); letter-spacing: 0.04em; }
 
 .lock-error {
-  color: #ff6b6b;
+  color: #ff7a7a;
   font-size: 0.84rem;
   font-weight: 600;
 }
 
 .lock-submit {
   appearance: none;
-  background: var(--green-accent);
+  background: linear-gradient(180deg, #2bd66a, #16a34a);
   border: none;
   border-radius: 12px;
-  color: #08130b;
+  color: #042310;
   font-family: inherit;
   font-size: 1rem;
   font-weight: 800;
@@ -262,10 +364,15 @@ body {
   text-transform: uppercase;
   padding: 16px;
   cursor: pointer;
-  transition: filter 0.1s;
+  box-shadow: var(--edge-top), var(--lift-sm);
+  transition: transform var(--t), box-shadow var(--t), filter var(--t);
 }
 
-.lock-submit:active { filter: brightness(0.9); }
+.lock-submit:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: var(--press);
+  filter: brightness(0.96);
+}
 
 .lock-back {
   appearance: none;

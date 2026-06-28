@@ -1,11 +1,12 @@
 import { getConfig, playerInfo } from './config.js';
 import { menuButtonHtml, attachMenu } from './menu.js';
+import { icon } from './icons.js';
 
 const BASE_SEASON  = 2026;
 const POSITIONS    = [null, 'def', 'mid', 'fwd'];
 const POS_LBL      = { 'null': '—', def: 'DEF', mid: 'MID', fwd: 'FWD' };
 const MOODS        = ['motivated', 'neutral', 'tired'];
-const MOOD_EMOJI   = { motivated: '🔥', neutral: '😐', tired: '😮‍💨' };
+const MOOD_ICON    = { motivated: 'moodUp', neutral: 'moodFlat', tired: 'moodDown' };
 const MONTHS       = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 
 let G         = null;
@@ -166,6 +167,12 @@ function updateStatBtns() {
   setTxt('val-mark',     `${s.marksOk}/${s.marks}`);
 }
 
+function runBtnInner() {
+  if (!G.gameStarted)          return `${icon('play')}<span>START</span>`;
+  if (G.status === 'running')  return `${icon('pause')}<span>RUNNING</span>`;
+  return `${icon('play')}<span>PAUSED</span>`;
+}
+
 function updateGameBar() {
   setTxt('q-label',       G.quarter > 4 ? 'FT' : `Q${G.quarter}`);
   setTxt('pos-label',     POS_LBL[String(G.current.position)] ?? '—');
@@ -173,9 +180,7 @@ function updateGameBar() {
 
   const runBtn = document.getElementById('run-btn');
   if (runBtn) {
-    runBtn.textContent = !G.gameStarted
-      ? '▶ START'
-      : G.status === 'running' ? '⏸ RUNNING' : '▶ PAUSED';
+    runBtn.innerHTML = runBtnInner();
     runBtn.classList.toggle('game-bar__run--live', G.status === 'running');
   }
 
@@ -306,12 +311,12 @@ function openQuarterNotes() {
       <div class="sheet-title">Q${q} RECAP</div>
       <div class="mood-row">
         ${MOODS.map(m => `
-          <button class="mood-btn${G.current.mood === m ? ' mood-btn--active' : ''}" data-mood="${m}">
-            ${MOOD_EMOJI[m]}
+          <button class="mood-btn${G.current.mood === m ? ' mood-btn--active' : ''}" data-mood="${m}" aria-label="${m}">
+            ${icon(MOOD_ICON[m])}
           </button>`).join('')}
       </div>
       <textarea class="notes-area" id="qnotes" placeholder="Notes on ${_player.name}'s quarter…">${G.current.notes}</textarea>
-      <button class="sheet-primary" id="end-q-btn">${q >= 4 ? '🏁 FULL TIME' : `END Q${q} →`}</button>
+      <button class="sheet-primary" id="end-q-btn">${q >= 4 ? 'FULL TIME' : `END Q${q}`}</button>
       <button class="sheet-cancel" id="qnotes-cancel">CANCEL</button>
     </div>`;
   document.body.appendChild(overlay);
@@ -369,7 +374,7 @@ function openFork(team, kind) {
   overlay.className = 'fork-overlay';
   overlay.innerHTML = `
     <div class="fork-sheet">
-      <div class="fork-hint">${kind === 'goal' ? '⚽ GOAL — WHO?' : 'BEHIND — WHO?'}</div>
+      <div class="fork-hint">${icon(kind, 'fork-hint__icon')}<span>${kind === 'goal' ? 'GOAL' : 'BEHIND'} — WHO?</span></div>
       <div class="fork-btns">
         <button class="fork-btn fork-btn--alek" data-v="alek">
           ${_player.name.toUpperCase()} <span class="fork-pts">#${_player.number}</span>
@@ -587,7 +592,7 @@ function showSummary() {
   document.getElementById('app').innerHTML = `
     <div class="screen summary-screen">
       <header class="tracker-header">
-        <button class="back-btn" id="sum-back">‹</button>
+        <button class="back-btn" id="sum-back" aria-label="Back">${icon('back')}</button>
         <div class="tracker-header__info">
           <span class="tracker-header__rd">FULL TIME · ${fmtDate(G.date)}</span>
         </div>
@@ -604,7 +609,7 @@ function showSummary() {
         ${G.quarters.map((q, i) => `
           <div class="summary-q">
             <span class="summary-q__qnum">Q${i + 1}</span>
-            <span class="summary-q__mood">${MOOD_EMOJI[q.mood] || '—'}</span>
+            <span class="summary-q__mood">${q.mood ? icon(MOOD_ICON[q.mood]) : '—'}</span>
             <span class="summary-q__pos">${POS_LBL[String(q.position)] ?? '—'}</span>
             <span class="summary-q__stats">
               ${[
@@ -623,11 +628,11 @@ function showSummary() {
       <div class="summary-stats">
         <div class="debrief-card">
           <div class="debrief-field">
-            <label class="debrief-label">✅ WHAT WENT WELL</label>
+            <label class="debrief-label">WHAT WENT WELL</label>
             <textarea class="notes-area" id="debrief-well" placeholder="What ${_player.name} did well today…">${G.debrief?.didWell || ''}</textarea>
           </div>
           <div class="debrief-field">
-            <label class="debrief-label">🎯 WORK ON</label>
+            <label class="debrief-label">WORK ON</label>
             <textarea class="notes-area" id="debrief-work" placeholder="One thing to improve next game…">${G.debrief?.workOn || ''}</textarea>
           </div>
         </div>
@@ -654,7 +659,7 @@ function showSummary() {
           <div class="game-export-card__label">NEW FILE IN GITHUB MOBILE</div>
           <div class="game-export-card__path">docs/data/games/game-${G.date}.json</div>
           <div class="game-export-card__hint">Add file → Create new file → paste</div>
-          <button class="summary-copy-btn" id="sum-export">📋 COPY JSON</button>
+          <button class="summary-copy-btn" id="sum-export">COPY JSON</button>
           <div class="game-export-card__hint">Then add <strong>"${G.date}"</strong> to <span class="game-export-card__path">docs/data/games/index.json</span> so the result shows on Fixtures.</div>
         </div>
         <div class="summary-footer__row">
@@ -737,6 +742,7 @@ export async function renderTracker(lang, round) {
         <div class="scoreboard__pts" id="hp-pts">${calcTotal(G.score.hp)}</div>
         <div class="scoreboard__gb"  id="hp-gb">${fmtGB(G.score.hp)}</div>
       </button>
+      <div class="scoreboard__hint">tap&nbsp;shot&nbsp;·&nbsp;2×&nbsp;behind&nbsp;·&nbsp;hold&nbsp;goal</div>
     </div>`;
   const oppSide = `
     <div class="scoreboard__side scoreboard__side--opp scoreboard__side--${isHome ? 'right' : 'left'}">
@@ -746,6 +752,7 @@ export async function renderTracker(lang, round) {
         <div class="scoreboard__pts" id="opp-pts">${calcTotal(G.score.opp)}</div>
         <div class="scoreboard__gb"  id="opp-gb">${fmtGB(G.score.opp)}</div>
       </button>
+      <div class="scoreboard__hint">2×&nbsp;behind&nbsp;·&nbsp;hold&nbsp;goal</div>
     </div>`;
   const leftSide  = isHome ? hpSide : oppSide;
   const rightSide = isHome ? oppSide : hpSide;
@@ -754,12 +761,12 @@ export async function renderTracker(lang, round) {
     <div class="screen tracker-screen tracker-screen--${isHome ? 'home' : 'away'}">
 
       <div class="ctrl-bar">
-        <button class="ctrl-back" id="back-btn">‹</button>
+        <button class="ctrl-back" id="back-btn" aria-label="Back">${icon('back')}</button>
         <div class="ctrl-fixture">
           <span class="ctrl-fixture__rd">${rdLabel}</span>
           <span class="ctrl-fixture__opp">${oppShort}</span>
         </div>
-        <button class="ctrl-undo" id="undo-btn" disabled>↩ UNDO</button>
+        <button class="ctrl-undo" id="undo-btn" disabled>${icon('undo')}<span>UNDO</span></button>
         ${menuButtonHtml(lang, 'tracker')}
       </div>
 
@@ -768,11 +775,11 @@ export async function renderTracker(lang, round) {
         <button class="game-bar__pos" id="pos-btn">
           <span id="pos-label">${POS_LBL[String(G.current.position)] ?? '—'}</span>
         </button>
-        <div class="game-bar__sep">|</div>
+        <div class="game-bar__sep"></div>
         <div class="game-bar__timer${!G.gameStarted ? ' game-bar__timer--edit' : ''}" id="timer-display">${fmtTimer(G.timerRemaining)}</div>
-        <div class="game-bar__sep">|</div>
+        <div class="game-bar__sep"></div>
         <button class="game-bar__run${G.status === 'running' ? ' game-bar__run--live' : ''}" id="run-btn">
-          ${!G.gameStarted ? '▶ START' : G.status === 'running' ? '⏸ RUNNING' : '▶ PAUSED'}
+          ${runBtnInner()}
         </button>
       </div>
 
@@ -783,25 +790,28 @@ export async function renderTracker(lang, round) {
       </section>
 
       <div class="alek-strip">
-        <span class="alek-strip__name">⭐ ${_player.name.toUpperCase()} #${_player.number}</span>
+        <span class="alek-strip__name">${icon('star', 'alek-strip__star')} ${_player.name.toUpperCase()} #${_player.number}</span>
         <span class="alek-strip__stats" id="alek-stats">—</span>
       </div>
 
       <div class="stat-btns">
         <button class="stat-btn" id="btn-mark">
-          <span class="stat-btn__icon">🏉</span>
+          <span class="stat-btn__icon">${icon('mark')}</span>
           <span class="stat-btn__label">MARK</span>
           <span class="stat-btn__val" id="val-mark">0/0</span>
+          <span class="stat-btn__hint">tap&nbsp;·&nbsp;hold ✓</span>
         </button>
         <button class="stat-btn" id="btn-disposal">
-          <span class="stat-btn__icon">🤲</span>
+          <span class="stat-btn__icon">${icon('disposal')}</span>
           <span class="stat-btn__label">DISPOSAL</span>
           <span class="stat-btn__val" id="val-disposal">0/0</span>
+          <span class="stat-btn__hint">tap&nbsp;·&nbsp;hold ✓</span>
         </button>
         <button class="stat-btn" id="btn-tackle">
-          <span class="stat-btn__icon">🤼</span>
+          <span class="stat-btn__icon">${icon('tackle')}</span>
           <span class="stat-btn__label">TACKLE</span>
           <span class="stat-btn__val" id="val-tackle">0/0</span>
+          <span class="stat-btn__hint">tap&nbsp;·&nbsp;hold ✓</span>
         </button>
       </div>
 

@@ -14,6 +14,8 @@
        .update('NEWPASS'.toUpperCase()).digest('hex'))"
    ========================================================= */
 
+import { icon } from './icons.js';
+
 const HASHES = {
   en: 'fba30da3a31592e4dc4d36332d8d234c1c01d66a67396b36ee6be7e853906946', // English side
   bg: 'a7253649957f9947ced080c343f353643603b9f393d785a2ff198e4c1896824f', // Bulgarian side
@@ -67,7 +69,7 @@ export function renderLock(side, onSuccess) {
   app.innerHTML = `
     <div class="lock-screen">
       <div class="lock-card">
-        <div class="lock-icon" aria-hidden="true">🔒</div>
+        <div class="lock-icon" aria-hidden="true">${icon('lock')}</div>
         <div class="lock-eyebrow">${t.eyebrow}</div>
         <h1 class="lock-title">${t.title}</h1>
         <p class="lock-hint">${t.hint}</p>

@@ -1,5 +1,6 @@
 import { getConfig, teamName } from './config.js';
 import { menuButtonHtml, attachMenu } from './menu.js';
+import { icon } from './icons.js';
 
 const BASE_SEASON = 2026;
 
@@ -202,7 +203,7 @@ export async function renderReports(lang) {
     body.innerHTML = `
       <div class="story-content">
         <div class="reports-empty">
-          <div class="reports-empty__icon">🏆</div>
+          <div class="reports-empty__icon">${icon('reports')}</div>
           <div class="reports-empty__title">${isEn ? 'No match reports yet' : 'Все още няма репортажи'}</div>
           <div class="reports-empty__hint">${isEn
             ? 'A report appears here after each game is tracked and saved.'

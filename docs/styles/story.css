@@ -70,9 +70,11 @@
 .season-card {
   appearance: none;
   width: 100%;
-  background: #18181e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top), var(--lift-sm);
+  border-radius: 18px;
   padding: 18px 20px;
   display: flex;
   align-items: center;
@@ -81,10 +83,10 @@
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  transition: background 0.12s;
+  transition: transform var(--t), box-shadow var(--t);
 }
 
-.season-card:active { background: #222228; }
+.season-card:active { transform: translateY(1px) scale(0.99); box-shadow: var(--hairline), var(--press); }
 
 .season-card__label {
   font-size: 0.66rem;
@@ -111,10 +113,10 @@
 }
 
 .season-card__arrow {
-  font-size: 1.6rem;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-lo);
   flex-shrink: 0;
 }
+.season-card__arrow .icn { width: 22px; height: 22px; }
 
 /* ---- Full-season story: chapter separation ---- */
 
@@ -136,17 +138,19 @@
   appearance: none;
   width: 100%;
   position: relative;
-  background: #18181e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top), var(--lift-sm);
   border-radius: 16px;
   padding: 16px 38px 16px 18px;
   text-align: left;
   font-family: inherit;
   cursor: pointer;
-  transition: background 0.12s;
+  transition: transform var(--t), box-shadow var(--t);
 }
 
-.report-card:active { background: #222228; }
+.report-card:active { transform: translateY(1px) scale(0.99); box-shadow: var(--hairline), var(--press); }
 
 .report-card__meta {
   font-size: 0.66rem;
@@ -205,7 +209,19 @@
   padding: 56px 24px;
 }
 
-.reports-empty__icon { font-size: 2.6rem; margin-bottom: 14px; }
+.reports-empty__icon {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--text-mid);
+  background: var(--glass);
+  box-shadow: var(--hairline), var(--edge-top);
+  border-radius: 16px;
+}
+.reports-empty__icon .icn { width: 28px; height: 28px; }
 
 .reports-empty__title {
   font-size: 1.1rem;
@@ -225,30 +241,37 @@
 
 .card-story-btn {
   appearance: none;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.7);
+  background: var(--glass-strong);
+  border: none;
+  border-radius: 11px;
+  color: var(--text-hi);
   font-family: inherit;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  padding: 7px 14px;
+  padding: 8px 14px;
   cursor: pointer;
-  transition: background 0.1s;
+  box-shadow: var(--hairline), var(--edge-top);
+  transition: transform var(--t), box-shadow var(--t);
   margin-top: 10px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
+.card-story-btn .icn { width: 15px; height: 15px; color: var(--green-accent); }
 .card-story-btn:active {
-  background: rgba(255, 255, 255, 0.13);
+  transform: translateY(1px) scale(0.98);
+  box-shadow: var(--hairline), var(--press);
 }
 
 /* ---- Prologue card (special entry at top of BG list) ---- */
 
 .prologue-card {
-  background: #18181e;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top), var(--lift-sm);
   border-radius: 18px;
   padding: 16px 18px;
   margin-bottom: 12px;
@@ -257,11 +280,12 @@
   justify-content: space-between;
   gap: 12px;
   cursor: pointer;
-  transition: background 0.12s;
+  transition: transform var(--t), box-shadow var(--t);
 }
 
 .prologue-card:active {
-  background: #222228;
+  transform: translateY(1px) scale(0.99);
+  box-shadow: var(--hairline), var(--press);
 }
 
 .prologue-card__text {

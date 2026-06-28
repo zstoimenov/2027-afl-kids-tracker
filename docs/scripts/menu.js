@@ -4,32 +4,31 @@
    omitted (the back button covers going home).
    ========================================================= */
 
+import { icon } from './icons.js';
+
 const PAGES = {
   en: [
-    { key: 'tracker',  href: '#/en/tracker', label: '📊 Track a Game' },
-    { key: 'reports',  href: '#/en/reports', label: '🏆 Match Reports' },
-    { key: 'fixtures', href: '#/en',         label: '📅 Fixtures &amp; Results' },
+    { key: 'tracker',  href: '#/en/tracker', ic: 'track',    label: 'Track a Game' },
+    { key: 'reports',  href: '#/en/reports', ic: 'reports',  label: 'Match Reports' },
+    { key: 'fixtures', href: '#/en',         ic: 'fixtures', label: 'Fixtures &amp; Results' },
   ],
   bg: [
-    { key: 'fixtures', href: '#/bg',         label: '📅 Мачове &amp; Резултати' },
-    { key: 'stories',  href: '#/bg/seasons', label: '📖 Истории' },
+    { key: 'fixtures', href: '#/bg',         ic: 'fixtures', label: 'Мачове &amp; Резултати' },
+    { key: 'stories',  href: '#/bg/seasons', ic: 'stories',  label: 'Истории' },
   ],
 };
-
-const INSTALL_LABEL = { en: '📲 Install App', bg: '📲 Инсталирай приложението' };
 
 // Header markup for the menu, excluding the page you're on (currentKey).
 export function menuButtonHtml(lang, currentKey) {
   const items = (PAGES[lang] || []).filter(it => it.key !== currentKey);
   const links = items
-    .map(it => `<button class="header-menu__item" data-href="${it.href}">${it.label}</button>`)
+    .map(it => `<button class="header-menu__item" data-href="${it.href}">${icon(it.ic)}<span>${it.label}</span></button>`)
     .join('');
-  const install = `<button class="header-menu__item" data-action="install">${INSTALL_LABEL[lang] || INSTALL_LABEL.en}</button>`;
   const ariaLabel = lang === 'bg' ? 'Меню' : 'Menu';
   return `
     <div class="header-menu-wrap">
-      <button class="menu-btn" id="menu-btn" aria-label="${ariaLabel}" aria-expanded="false" aria-haspopup="true">☰</button>
-      <nav class="header-menu" id="header-menu" hidden>${links}${install}</nav>
+      <button class="menu-btn" id="menu-btn" aria-label="${ariaLabel}" aria-expanded="false" aria-haspopup="true">${icon('menu')}</button>
+      <nav class="header-menu" id="header-menu" hidden>${links}</nav>
     </div>`;
 }
 
@@ -57,9 +56,8 @@ export function attachMenu(lang) {
 
   menuNav.querySelectorAll('.header-menu__item').forEach(item => {
     item.addEventListener('click', () => {
-      const { href, action } = item.dataset;
+      const { href } = item.dataset;
       closeMenu();
-      if (action === 'install') { showInstallSheet(lang); return; }
       if (href && href !== window.location.hash) window.location.hash = href;
     });
   });

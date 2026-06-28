@@ -1,5 +1,6 @@
 import { getConfig, teamName } from './config.js';
 import { menuButtonHtml, attachMenu } from './menu.js';
+import { icon } from './icons.js';
 
 const MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const MONTHS_BG = ['ЯНУ','ФЕВ','МАР','АПР','МАЙ','ЮНИ','ЮЛИ','АВГ','СЕП','ОКТ','НОЕ','ДЕК'];
@@ -184,7 +185,7 @@ function scoreRow(round, lang, state) {
     if (state === 'today' && isEn) {
       return `<div class="score-dash score-dash--track">
         <button class="card-track-btn" data-round="${round.round}" data-lang="${lang}">
-          ▶ TRACK GAME
+          ${icon('play')}<span>TRACK GAME</span>
         </button>
       </div>`;
     }
@@ -266,7 +267,7 @@ function buildCard(round, lang, today, year, storyRounds) {
   const inner = lang === 'bg' ? cardBg(round, state) : cardEn(round, state);
 
   const storyBtn = lang === 'bg' && (state === 'past' || (state === 'today' && hasResult(round))) && storyRounds.has(round.round)
-    ? `<button class="card-story-btn" data-round="${round.round}" data-year="${year}">📖 Прочети историята</button>`
+    ? `<button class="card-story-btn" data-round="${round.round}" data-year="${year}">${icon('stories')}<span>Прочети историята</span></button>`
     : '';
 
   return `
@@ -288,7 +289,7 @@ export async function renderFixtures(lang) {
   app.innerHTML = `
     <div class="screen">
       <header class="screen-header">
-        <button class="back-btn" id="back-btn" aria-label="${isEn ? 'Back' : 'Назад'}">‹</button>
+        <button class="back-btn" id="back-btn" aria-label="${isEn ? 'Back' : 'Назад'}">${icon('back')}</button>
         <div class="screen-header__mid">
           <div class="screen-header__club">${club}</div>
           <h1 class="screen-header__title">${isEn ? 'Fixtures &amp; Results' : 'Мачове &amp; Резултати'}</h1>
@@ -298,10 +299,10 @@ export async function renderFixtures(lang) {
 
       <div class="year-bar">
         <button class="year-btn year-btn--prev" id="year-prev"
-          aria-label="${isEn ? 'Previous season' : 'Предишен сезон'}">‹</button>
+          aria-label="${isEn ? 'Previous season' : 'Предишен сезон'}">${icon('back')}</button>
         <span class="year-label" id="year-label">—</span>
         <button class="year-btn year-btn--next" id="year-next"
-          aria-label="${isEn ? 'Next season' : 'Следващ сезон'}">›</button>
+          aria-label="${isEn ? 'Next season' : 'Следващ сезон'}">${icon('chevron')}</button>
       </div>
 
       <div class="fixtures-list" id="fixtures-list">
@@ -379,7 +380,7 @@ export async function renderFixtures(lang) {
             <div class="prologue-card__label">Пролог</div>
             <div class="prologue-card__title">${prologueShort(story.prologue.title)}</div>
           </div>
-          <span class="prologue-card__arrow">›</span>
+          <span class="prologue-card__arrow">${icon('chevron')}</span>
         </button>` : '';
 
       list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds)).join('');
@@ -393,7 +394,7 @@ export async function renderFixtures(lang) {
       if (err.status === 404) {
         list.innerHTML = `
           <div class="screen-coming-soon">
-            <div class="coming-soon__icon">📅</div>
+            <div class="coming-soon__icon">${icon('fixtures')}</div>
             <div class="coming-soon__text">${
               isEn ? `${year} season coming soon` : `Сезон ${year} предстои`
             }</div>

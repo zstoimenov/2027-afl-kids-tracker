@@ -2,6 +2,8 @@ import { renderFixtures } from './fixtures.js';
 import { renderTracker }  from './tracker.js';
 import { renderStory, renderSeasonPicker, renderSeasonStory, renderReports, renderReport } from './story.js';
 import { isUnlocked, renderLock } from './auth.js';
+import { showInstallSheet } from './menu.js';
+import { icon } from './icons.js';
 
 const LANDING_HTML = document.getElementById('app').innerHTML;
 
@@ -13,6 +15,12 @@ function renderLanding() {
       window.location.hash = `#/${btn.dataset.lang}`;
     });
   });
+  // Install prompt lives only on the home screen, in Bulgarian.
+  const installBtn = app.querySelector('#install-btn');
+  if (installBtn) {
+    installBtn.innerHTML = `${icon('install')}<span>Инсталирай приложението</span>`;
+    installBtn.addEventListener('click', () => showInstallSheet('bg'));
+  }
 }
 
 // Gate a render behind the side's password (whole EN side / whole BG side).
