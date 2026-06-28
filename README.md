@@ -173,13 +173,16 @@ Claude generates stories from game JSON. Stories are saved once and never regene
 
 ---
 
-### Phase 7 — Season Arc 🔲 Not started
+### Phase 7 — Season Arc ✅ Complete
 
 | Task | Status |
 |---|---|
-| Season arc generation: Claude receives all game JSONs → season narrative | 🔲 Todo |
-| BG Season Arc screen | 🔲 Todo |
-| EN Season summary view | 🔲 Todo |
+| Season arc narrative (all game JSONs → season story) | ✅ Done — `stories/season-YYYY.json` (EN + BG arc), written from the 9 game files |
+| Season screen (stats + arc) | ✅ Done — `#/en/arc` (Season Summary) and `#/bg/arc` (Сезонен преглед) |
+| EN season summary view | ✅ Done — record hero (W–L), aggregated stat grid with `x/y` + `%`, season points, then the arc |
+| BG Season Arc screen | ✅ Done — same stats, warm grandparent-tone arc |
+
+The Season screen aggregates every game file for the season live (record, goals/behinds/shots, marks/disposals/tackles with success %, total points) and renders the saved arc narrative underneath. Added to both header menus.
 
 ---
 
@@ -245,6 +248,13 @@ A running summary of what's been built. Newest at the bottom.
 - New **English Match Reports** screen (list + reader) reading per-game `story-YYYY-MM-DD.json`; tasteful empty state until games are saved. Added to the EN menu.
 - Per-game story format (EN + BG: headline / commentator / coach) + `stories/index.json` manifest + `GENERATION.md` documenting the process and the **3–5 minute** length target.
 - **Story length:** the prologue + chapters 1–3 of the 2026 BG season have been rewritten as richer reads (roughly doubled, ~2.5–3.5 min); chapters 4–9 still to be expanded/lengthened to the full target.
+
+### Real 2026 data + tap-to-open
+- **Cards open on tap** (no buttons): EN played game → stats report, EN today → tracker, BG → story, with a short hint + chevron.
+- **Real game data for rounds 1–9** plugged in from the previous app: `games/game-2026-*.json` (totals + per-quarter), with coach Highlight/Focus → debrief and commentator Insight → `story-2026-*.json` (all 9 rounds have a write-up). Fixtures results now flow from these; corrected round 5 to away (HPFC Green).
+
+### Phase 7 — Season Arc
+- **Season screen** (`#/en/arc`, `#/bg/arc`): aggregates all game files live — record (8–1), goals/behinds/shots, marks/disposals/tackles with success %, season points (42) — then the **season arc** narrative (`stories/season-2026.json`, EN + BG). Added to both menus.
 
 ---
 

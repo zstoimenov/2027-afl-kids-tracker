@@ -263,12 +263,13 @@ function xy(o) {
   return `${o?.successful || 0}<span class="rstat__den">/${att}</span>`;
 }
 
-function statTile(ic, value, label) {
+function statTile(ic, value, label, sub) {
   return `
     <div class="rstat">
       <span class="rstat__icon">${icon(ic)}</span>
       <span class="rstat__val">${value}</span>
       <span class="rstat__label">${label}</span>
+      ${sub ? `<span class="rstat__sub">${sub}</span>` : ''}
     </div>`;
 }
 
@@ -395,4 +396,87 @@ export async function renderReport(lang, date) {
       ${commentaryHtml}
       ${coachHtml}
     </div>`;
+}
+
+/* ---- Season Arc (Phase 7): all games aggregated + season narrative ---- */
+
+async function loadSeasonArc(year) {
+  try {
+    const resp = await fetch(`./data/stories/season-${year}.json`);
+    return resp.ok ? await resp.json() : null;
+  } catch { return null; }
+}
+
+function aggregateSeason(games) {
+  const a = {
+    games: 0, wins: 0, losses: 0, draws: 0,
+    goals: 0, behinds: 0, shots: 0, points: 0,
+    tackOk: 0, tackAtt: 0, dispOk: 0, dispAtt: 0, markOk: 0, markAtt: 0,
+  };
+  for (const g of games) {
+    const t = g.totals?.aleksStats || {};
+    const ts = g.totals?.teamScore || {};
+    a.games++;
+    a.goals   += t.scoring?.goals || 0;
+    a.behinds += t.scoring?.behinds || 0;
+    a.shots   += t.scoring?.goalAttempts || 0;
+    a.points  += t.points || 0;
+    a.tackOk  += t.tackles?.successful || 0;   a.tackAtt += t.tackles?.attempts || 0;
+    a.dispOk  += t.disposals?.successful || 0; a.dispAtt += t.disposals?.attempts || 0;
+    a.markOk  += t.marks?.successful || 0;      a.markAtt += t.marks?.attempts || 0;
+    const hp = ts.hammondPark?.score ?? 0, op = ts.opposition?.score ?? 0;
+    if (hp > op) a.wins++; else if (op > hp) a.losses++; else a.draws++;
+  }
+  return a;
+}
+
+const pct = (ok, att) => att ? `${Math.round((ok / att) * 100)}%` : '';
+const seasonXy = (ok, att) => att ? `${ok}<span class="rstat__den">/${att}</span>` : '—';
+
+export async function renderSeasonArc(lang, year = BASE_SEASON) {
+  const isEn = lang === 'en';
+  const cfg  = await getConfig();
+  const club = teamName(cfg);
+  const body = shell(lang, isEn ? `Season ${year}` : `Сезонът ${year}`, `#/${lang}`, club, 'season');
+
+  const dates = (await loadGameIndexDates()).filter(d => d.startsWith(`${year}-`)).sort();
+  const games = (await Promise.all(dates.map(loadGame))).filter(Boolean);
+  const arcData = await loadSeasonArc(year);
+  const arc = isEn ? arcData?.english : arcData?.bulgarian;
+
+  if (!games.length && !arc) {
+    body.innerHTML = `<div class="story-empty">${isEn ? 'Season summary not available yet.' : 'Прегледът на сезона все още не е наличен.'}</div>`;
+    return;
+  }
+
+  const a = aggregateSeason(games);
+  const recordLabel = isEn
+    ? `Won ${a.wins} of ${a.games}`
+    : `${a.wins} от ${a.games} победи`;
+
+  const statsHtml = a.games ? `
+    <div class="season-hero">
+      <div class="season-hero__record">${a.wins}<span>–</span>${a.losses}${a.draws ? `<span>–</span>${a.draws}` : ''}</div>
+      <div class="season-hero__label">${recordLabel} · ${year}</div>
+    </div>
+
+    <div class="rstat-grid">
+      ${statTile('goal',     a.goals,                       isEn ? 'Goals' : 'Голове')}
+      ${statTile('behind',   a.behinds,                     isEn ? 'Behinds' : 'Бихайнди')}
+      ${statTile('shot',     a.shots,                       isEn ? 'Shots' : 'Удари')}
+      ${statTile('mark',     seasonXy(a.markOk, a.markAtt), isEn ? 'Marks' : 'Маркове', pct(a.markOk, a.markAtt))}
+      ${statTile('disposal', seasonXy(a.dispOk, a.dispAtt), isEn ? 'Disposals' : 'Подавания', pct(a.dispOk, a.dispAtt))}
+      ${statTile('tackle',   seasonXy(a.tackOk, a.tackAtt), isEn ? 'Tackles' : 'Такъли', pct(a.tackOk, a.tackAtt))}
+    </div>
+
+    <div class="rpoints">
+      <span class="rpoints__label">${isEn ? 'Season points' : 'Точки за сезона'}</span>
+      <span class="rpoints__val">${a.points}</span>
+    </div>` : '';
+
+  const arcHtml = arc ? `
+    ${arc.headline ? `<h2 class="story-title report-headline">${arc.headline}</h2>` : ''}
+    <div class="story-text season-arc__text">${paragraphs(arc.arc)}</div>` : '';
+
+  body.innerHTML = `<div class="story-content">${statsHtml}${arcHtml}</div>`;
 }
