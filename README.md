@@ -238,6 +238,14 @@ A running summary of what's been built. Newest at the bottom.
 - Tracker summary now reminds you to add the date to `games/index.json` after pasting a game file.
 - Home/away colour shift from the original spec is intentionally **not** implemented — superseded by the deliberate neutral palette.
 
+### Subtle home/away accent
+- Green = home, soft steel = away, applied as a thin left stripe on each fixture card, the AWAY chip, and (on the tracker) the HP HOME/AWAY label + a small tab over the scoreboard. The main score stays green so our team reads instantly.
+
+### Phase 6 — Match Reports & story generation (in progress)
+- New **English Match Reports** screen (list + reader) reading per-game `story-YYYY-MM-DD.json`; tasteful empty state until games are saved. Added to the EN menu.
+- Per-game story format (EN + BG: headline / commentator / coach) + `stories/index.json` manifest + `GENERATION.md` documenting the process and the **3–5 minute** length target.
+- **Story length:** the prologue + chapters 1–3 of the 2026 BG season have been rewritten as richer reads (roughly doubled, ~2.5–3.5 min); chapters 4–9 still to be expanded/lengthened to the full target.
+
 ---
 
 ## Future consideration — GitHub Actions deploy (hardened secrets)
