@@ -1,3 +1,5 @@
+import { getConfig, playerInfo } from './config.js';
+
 const BASE_SEASON  = 2026;
 const POSITIONS    = [null, 'def', 'mid', 'fwd'];
 const POS_LBL      = { 'null': '—', def: 'DEF', mid: 'MID', fwd: 'FWD' };
@@ -13,15 +15,7 @@ let _timerIv  = null;
 let _player   = { name: 'Alek', number: 13 };
 
 async function loadPlayerConfig() {
-  try {
-    const cfg = await fetch('./data/season-config.json').then(r => r.json());
-    if (cfg?.player) {
-      _player = {
-        name:   cfg.player.name   ?? _player.name,
-        number: cfg.player.number ?? _player.number,
-      };
-    }
-  } catch { /* keep defaults */ }
+  _player = playerInfo(await getConfig());
 }
 
 /* ---- helpers ---- */
@@ -660,6 +654,7 @@ function showSummary() {
           <div class="game-export-card__path">docs/data/games/game-${G.date}.json</div>
           <div class="game-export-card__hint">Add file → Create new file → paste</div>
           <button class="summary-copy-btn" id="sum-export">📋 COPY JSON</button>
+          <div class="game-export-card__hint">Then add <strong>"${G.date}"</strong> to <span class="game-export-card__path">docs/data/games/index.json</span> so the result shows on Fixtures.</div>
         </div>
         <div class="summary-footer__row">
           <button class="summary-new-btn" id="sum-new">+ NEW GAME</button>

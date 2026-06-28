@@ -1,3 +1,5 @@
+import { getConfig, teamName } from './config.js';
+
 const BASE_SEASON = 2026;
 
 /* ---- helpers ---- */
@@ -16,7 +18,7 @@ async function loadSeason(year) {
   return resp.json();
 }
 
-function shell(lang, title, backHash) {
+function shell(lang, title, backHash, club = 'Hammond Park Blue') {
   const isEn = lang === 'en';
   const app  = document.getElementById('app');
   app.innerHTML = `
@@ -24,7 +26,7 @@ function shell(lang, title, backHash) {
       <header class="screen-header">
         <button class="back-btn" id="story-back" aria-label="${isEn ? 'Back' : 'Назад'}">‹</button>
         <div class="screen-header__mid">
-          <div class="screen-header__club">Hammond Park Blue</div>
+          <div class="screen-header__club">${club}</div>
           <h1 class="screen-header__title">${title}</h1>
         </div>
         <div style="width:40px"></div>
@@ -43,7 +45,8 @@ function shell(lang, title, backHash) {
 
 export async function renderSeasonPicker(lang) {
   const isEn = lang === 'en';
-  const body = shell(lang, isEn ? 'Stories' : 'Истории', `#/${lang}`);
+  const club = teamName(await getConfig());
+  const body = shell(lang, isEn ? 'Stories' : 'Истории', `#/${lang}`, club);
 
   // Probe which seasons have a story file (auto-discovers future seasons).
   // Always probe at least one season ahead, regardless of the device clock.
@@ -99,7 +102,8 @@ export async function renderSeasonPicker(lang) {
 
 export async function renderSeasonStory(lang, year) {
   const isEn = lang === 'en';
-  const body = shell(lang, `${isEn ? 'Season' : 'Сезон'} ${year}`, `#/${lang}/seasons`);
+  const club = teamName(await getConfig());
+  const body = shell(lang, `${isEn ? 'Season' : 'Сезон'} ${year}`, `#/${lang}/seasons`, club);
 
   let data;
   try {
@@ -132,7 +136,8 @@ export async function renderSeasonStory(lang, year) {
 
 export async function renderStory(lang, id, year = BASE_SEASON) {
   const isEn = lang === 'en';
-  const body = shell(lang, isEn ? 'Season Story' : 'Историята на сезона', `#/${lang}`);
+  const club = teamName(await getConfig());
+  const body = shell(lang, isEn ? 'Season Story' : 'Историята на сезона', `#/${lang}`, club);
 
   let data;
   try {

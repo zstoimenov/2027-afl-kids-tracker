@@ -21,13 +21,16 @@ Personal AFL Kids League stat tracker and storytelling platform for Hammond Park
 │   ├── scripts/
 │   │   ├── app.js                 # SPA router + password guards
 │   │   ├── auth.js                # Password gates (EN + BG), SHA-256 hashes
-│   │   ├── fixtures.js            # Fixtures & Results (EN + BG) + header menu
+│   │   ├── config.js              # Shared season-config loader (player + team name)
+│   │   ├── fixtures.js            # Fixtures & Results (EN + BG) + header menu + results pipeline
 │   │   ├── tracker.js             # Stat tracker (EN only)
 │   │   └── story.js               # Story reader: season picker, full season, single chapter (BG)
 │   └── data/
 │       ├── fixtures.json          # 2026 season schedule + results
 │       ├── fixtures-YYYY.json     # Future seasons (loaded by year selector)
-│       ├── games/                 # game-YYYY-MM-DD.json (saved after each game)
+│       ├── games/
+│       │   ├── index.json         # Lists which dates have a saved game file
+│       │   └── game-YYYY-MM-DD.json  # Saved after each game (source of truth for results)
 │       └── stories/
 │           └── 2026.json          # BG stories: prologue + chapters 1–9
 ├── data/                          # Schema reference files
@@ -128,17 +131,25 @@ cd docs && python3 -m http.server 8000
 
 ---
 
-### Phase 5 — Game Data Pipeline 🔲 Not started
+### Phase 5 — Game Data Pipeline ✅ Complete
 
-The tracker currently saves game JSON via clipboard → GitHub Mobile paste. Once game files exist in `docs/data/games/`, the pipeline below makes the rest of the app data-driven.
+The tracker saves game JSON via clipboard → GitHub Mobile paste. Saved game files in `docs/data/games/` are now the source of truth for results: the Fixtures screen reads them and overrides whatever is hard-coded in `fixtures.json`.
 
 | Task | Status |
 |---|---|
-| Fixtures screen reads results from `games/game-YYYY-MM-DD.json` (not hard-coded in fixtures.json) | 🔲 Todo |
-| `fixtures.json` result fields updated from game files on load | 🔲 Todo |
-| Debrief section in game JSON: `didWell` + `workOn` fields (post-game input screen) | 🔲 Todo |
-| `season-config.json` integration: read player number, team name dynamically | 🔲 Todo |
-| Home/away colour scheme auto-detection from fixtures.json | 🔲 Todo |
+| Fixtures reads results from `games/game-YYYY-MM-DD.json` | ✅ Done — via `games/index.json` manifest; derives score + winner from `totals.teamScore` |
+| `fixtures.json` result fields overridden from game files on load | ✅ Done — in-memory, per viewed season |
+| Debrief (`didWell` / `workOn`) captured post-game and exported | ✅ Done — summary screen + JSON export |
+| `season-config.json`: player number + team name read dynamically | ✅ Done — shared `scripts/config.js`; player in tracker, team name in Fixtures/Story headers |
+| Home/away colour scheme auto-detection | ⏭️ Superseded — replaced by the deliberate neutral palette (green = accent only); see deviations. Not implemented by design |
+
+**Recording a game, end to end:**
+1. Track the game in the tracker; at full time tap **Copy JSON**.
+2. In GitHub Mobile, create `docs/data/games/game-YYYY-MM-DD.json` and paste.
+3. Add the date string to the `games` array in `docs/data/games/index.json`.
+4. The result now appears on the Fixtures screen automatically (overriding any placeholder in `fixtures.json`).
+
+> `games/index.json` exists to avoid blindly probing (and 404-ing) every fixture date on a static host — it lists exactly which dates have a saved game file.
 
 ---
 
@@ -175,7 +186,7 @@ Claude generates stories from game JSON. Stories are saved once and never regene
 | `seasonTeamName` field | Reserved for next year's team rename — not yet used |
 | `nicknames` array in player config | Story variety — not yet used |
 | `shoeColour` + personal details | Richer story colour — not yet used |
-| Home/away colour scheme shift | `season-config.colours` defined but UI does not yet re-theme by home/away |
+| Home/away colour scheme shift | Intentionally not implemented — superseded by the deliberate neutral palette (green = accent only). `season-config.colours` remains for future use |
 | Fixtures for 2027 season | Add `docs/data/fixtures-2027.json` when the schedule is published |
 | Stories for 2027 season | Add `docs/data/stories/2027.json` — the season picker and per-card story links pick it up automatically |
 | EN section hubs | Both languages currently open straight to Fixtures; reachable via the header menu. Full hubs deferred until Match Reports (Phase 6) and Season Arc (Phase 7) exist |
@@ -214,6 +225,13 @@ A running summary of what's been built. Newest at the bottom.
 - Whole **English side** and whole **Bulgarian side** gated behind a password each (landing stays open).
 - Passwords are word + two-digit number + word, entered **case-insensitively**; only **SHA-256 hashes** are stored (`scripts/auth.js`), never plaintext.
 - Unlock persists for the session (`sessionStorage`), per side.
+
+### Phase 5 — Game data pipeline
+- Fixtures **results are now driven by saved game files**: a `games/index.json` manifest lists which dates have a `game-YYYY-MM-DD.json`; the Fixtures screen loads those, derives score + winner from `totals.teamScore`, and overrides the placeholder result in `fixtures.json` for the matching round.
+- Per-season: only game files for the year being viewed are fetched.
+- Shared **`scripts/config.js`** is now the single source of truth for identity — player name/number (tracker) and full team name (Fixtures + Story headers) read from `season-config.json`.
+- Tracker summary now reminds you to add the date to `games/index.json` after pasting a game file.
+- Home/away colour shift from the original spec is intentionally **not** implemented — superseded by the deliberate neutral palette.
 
 ---
 
