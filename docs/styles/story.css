@@ -124,6 +124,103 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* ---- Match Reports ---- */
+
+.report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report-card {
+  appearance: none;
+  width: 100%;
+  position: relative;
+  background: #18181e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px 38px 16px 18px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.report-card:active { background: #222228; }
+
+.report-card__meta {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green-accent);
+  margin-bottom: 5px;
+}
+
+.report-card__headline {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.25;
+}
+
+.report-card__arrow {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.report-meta {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green-accent);
+  margin-bottom: 8px;
+}
+
+.report-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.report-section__label {
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 10px;
+}
+
+.reports-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 56px 24px;
+}
+
+.reports-empty__icon { font-size: 2.6rem; margin-bottom: 14px; }
+
+.reports-empty__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.reports-empty__hint {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+  max-width: 280px;
+}
+
 /* ---- Story link button on fixture cards ---- */
 
 .card-story-btn {

@@ -348,6 +348,7 @@ export async function renderFixtures(lang) {
   const menuItems = isEn
     ? [
         { href: '#/en/tracker', label: '📊 Track a Game' },
+        { href: '#/en/reports', label: '🏆 Match Reports' },
         { href: '#/en',         label: '📅 Fixtures &amp; Results', current: true },
         { action: 'install',    label: '📲 Install App' },
         { href: '#/',           label: '🏠 Home' },

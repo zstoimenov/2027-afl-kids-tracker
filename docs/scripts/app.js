@@ -1,6 +1,6 @@
 import { renderFixtures } from './fixtures.js';
 import { renderTracker }  from './tracker.js';
-import { renderStory, renderSeasonPicker, renderSeasonStory } from './story.js';
+import { renderStory, renderSeasonPicker, renderSeasonStory, renderReports, renderReport } from './story.js';
 import { isUnlocked, renderLock } from './auth.js';
 
 const LANDING_HTML = document.getElementById('app').innerHTML;
@@ -28,6 +28,15 @@ function route() {
   if (hash.startsWith('/en/tracker')) {
     const seg = hash.split('/')[3];
     guard('en', () => renderTracker('en', seg ? parseInt(seg, 10) : null));
+    return;
+  }
+  if (hash.startsWith('/en/report/')) {
+    const date = hash.split('/')[3];
+    guard('en', () => renderReport('en', date));
+    return;
+  }
+  if (hash.startsWith('/en/reports')) {
+    guard('en', () => renderReports('en'));
     return;
   }
   if (hash.startsWith('/bg/seasons')) {

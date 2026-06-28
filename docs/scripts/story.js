@@ -166,3 +166,94 @@ export async function renderStory(lang, id, year = BASE_SEASON) {
       <div class="story-text">${paragraphs(entry.body)}</div>
     </div>`;
 }
+
+/* ---- Match Reports (per-game stories: headline / commentator / coach) ---- */
+
+async function loadStoryIndex() {
+  try {
+    const resp = await fetch('./data/stories/index.json');
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return Array.isArray(data.stories) ? data.stories : [];
+  } catch { return []; }
+}
+
+async function loadGameStory(date) {
+  try {
+    const resp = await fetch(`./data/stories/story-${date}.json`);
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch { return null; }
+}
+
+// Match Reports list (English, kid-facing).
+export async function renderReports(lang) {
+  const isEn = lang === 'en';
+  const club = teamName(await getConfig());
+  const body = shell(lang, isEn ? 'Match Reports' : 'Репортажи', `#/${lang}`, club);
+
+  const entries = (await loadStoryIndex())
+    .slice()
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+
+  if (!entries.length) {
+    body.innerHTML = `
+      <div class="story-content">
+        <div class="reports-empty">
+          <div class="reports-empty__icon">🏆</div>
+          <div class="reports-empty__title">${isEn ? 'No match reports yet' : 'Все още няма репортажи'}</div>
+          <div class="reports-empty__hint">${isEn
+            ? 'A report appears here after each game is tracked and saved.'
+            : 'Репортаж се появява тук след всеки изигран мач.'}</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const cards = await Promise.all(entries.map(async e => {
+    const s = await loadGameStory(e.date);
+    const headline = s?.english?.headline || (isEn ? 'Match report' : 'Репортаж');
+    const round = e.round ?? s?.round ?? '';
+    return `
+      <button class="report-card" data-date="${e.date}" type="button">
+        <div class="report-card__meta">${isEn ? 'Round' : 'Кръг'} ${round} · ${e.date}</div>
+        <div class="report-card__headline">${headline}</div>
+        <span class="report-card__arrow">›</span>
+      </button>`;
+  }));
+
+  body.innerHTML = `<div class="story-content"><div class="report-list">${cards.join('')}</div></div>`;
+  body.querySelectorAll('.report-card').forEach(card => {
+    card.addEventListener('click', () => {
+      window.location.hash = `#/${lang}/report/${card.dataset.date}`;
+    });
+  });
+}
+
+// A single match report.
+export async function renderReport(lang, date) {
+  const isEn = lang === 'en';
+  const club = teamName(await getConfig());
+  const body = shell(lang, isEn ? 'Match Report' : 'Репортаж', `#/${lang}/reports`, club);
+
+  const s = await loadGameStory(date);
+  const story = isEn ? s?.english : s?.bulgarian;
+  if (!story) {
+    body.innerHTML = `<div class="story-empty">${isEn ? 'Report not available.' : 'Репортажът не е наличен.'}</div>`;
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="story-content">
+      <div class="report-meta">${isEn ? 'Round' : 'Кръг'} ${s.round ?? ''} · ${s.game ?? date}</div>
+      <h2 class="story-title">${story.headline || ''}</h2>
+      <div class="report-section">
+        <div class="report-section__label">${isEn ? 'The Call' : 'Репортаж'}</div>
+        <div class="story-text">${paragraphs(story.commentator)}</div>
+      </div>
+      <div class="report-section">
+        <div class="report-section__label">${isEn ? "Coach's Notes" : 'Бележки от треньора'}</div>
+        <div class="story-text">${paragraphs(story.coach)}</div>
+      </div>
+    </div>`;
+}
