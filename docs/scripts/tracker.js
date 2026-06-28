@@ -13,6 +13,13 @@ let G         = null;
 let _lang     = 'en';
 let _timerIv  = null;
 
+// Position cycling is debounced: while you tap through MID/FWD/— to reach the
+// position you want, nothing is logged. Only the settled value is recorded,
+// as a single timestamped change. These hold the in-flight cycle state.
+let _posTimer   = null;   // settle timer; non-null means a cycle is in progress
+let _posStart   = null;   // { from, q, t } snapshot taken at the first tap
+let _posDisplay = null;   // the position currently shown but not yet committed
+
 // Player identity comes from season-config.json (number may change each season).
 let _player   = { name: 'Alek', number: 13 };
 
@@ -206,16 +213,18 @@ function elapsedInQuarter() {
   return Math.max(0, Math.round(G.quarterDuration - G.timerRemaining));
 }
 
-// Keep the Undo button's enabled state in sync after every recorded action.
+// Keep the Undo button's enabled state in sync. It is also enabled while a
+// position cycle is settling, so the cycle can be cancelled.
 function refreshUndo() {
   const b = document.getElementById('undo-btn');
-  if (b) b.disabled = G.log.length === 0;
+  if (b) b.disabled = G.log.length === 0 && _posTimer === null;
 }
 
 // Record an action onto the undo log AND the timestamped event stream (1:1),
 // stamping each with the quarter, seconds-from-quarter-start, and the position
 // Alek is in at that moment (so stats follow mid-quarter position changes).
 function logAction(logEntry, eventData) {
+  flushPosition();   // settle any in-flight position cycle before this action
   const q = G.quarter, t = elapsedInQuarter();
   G.log.push({ ...logEntry, q, t });
   if (!G.events) G.events = [];
@@ -257,6 +266,9 @@ function recordScore(team, scorer, kind) {
 }
 
 function undoLast() {
+  // If a position cycle is mid-settle, Undo cancels it rather than touching
+  // the committed log.
+  if (_posTimer !== null) { cancelPositionCycle(); return; }
   const last = G.log.pop();
   if (!last) return;
   if (G.events?.length) G.events.pop();   // log and events are pushed 1:1
@@ -288,21 +300,61 @@ function undoLast() {
 
 /* ---- position ---- */
 
+function setPosBtnSettling(on) {
+  const btn = document.getElementById('pos-btn');
+  if (btn) btn.classList.toggle('alek-strip__pos--settling', on);
+}
+
+// Each tap advances the *displayed* position and (re)starts a short settle
+// timer. The substitution is timestamped at the FIRST tap of the burst (when
+// it actually happened on the field), not when you finish cycling.
 function cyclePosition() {
-  const from = G.current.position;
-  const idx  = POSITIONS.indexOf(from);
-  const to   = POSITIONS[(idx + 1) % POSITIONS.length];
+  if (_posTimer === null) {
+    _posStart   = { from: G.current.position, q: G.quarter, t: elapsedInQuarter() };
+    _posDisplay = G.current.position;
+  }
+  const idx = POSITIONS.indexOf(_posDisplay);
+  _posDisplay = POSITIONS[(idx + 1) % POSITIONS.length];
+  setTxt('pos-label', POS_LBL[String(_posDisplay)] ?? '—');
+  setPosBtnSettling(true);
+  vibe(10);
+
+  if (_posTimer) clearTimeout(_posTimer);
+  _posTimer = setTimeout(commitPosition, 1100);
+  refreshUndo();   // keep Undo tappable so a cycle can be cancelled
+}
+
+// Settle: record one timestamped change for the whole burst, unless we ended
+// up back where we started (pure cycling with no net change records nothing).
+function commitPosition() {
+  if (_posTimer) clearTimeout(_posTimer);
+  _posTimer = null;
+  setPosBtnSettling(false);
+  const start = _posStart, to = _posDisplay;
+  _posStart = null; _posDisplay = null;
+  if (!start || to === start.from) { refreshUndo(); return; }
+
   G.current.position = to;
-
-  // Timestamp the substitution / position change so stats can be split across
-  // the moment of the change, even mid-quarter. Logged 1:1 so it is undoable.
-  const q = G.quarter, t = elapsedInQuarter();
-  G.log.push({ type: 'position', from, to, q, t });
+  G.log.push({ type: 'position', from: start.from, to, q: start.q, t: start.t });
   if (!G.events) G.events = [];
-  G.events.push({ quarter: q, time: t, action: 'position', from, to });
-
+  G.events.push({ quarter: start.q, time: start.t, action: 'position', from: start.from, to });
   saveState();
-  setTxt('pos-label', POS_LBL[String(to)] ?? '—');
+  refreshUndo();
+  vibe(30);
+}
+
+// Commit any in-flight cycle immediately (before recording an action or
+// ending a quarter) so stats attribute to the settled position.
+function flushPosition() {
+  if (_posTimer !== null) commitPosition();
+}
+
+// Abandon an in-flight cycle without recording it; restore the shown label.
+function cancelPositionCycle() {
+  if (_posTimer) clearTimeout(_posTimer);
+  _posTimer = null; _posStart = null; _posDisplay = null;
+  setPosBtnSettling(false);
+  setTxt('pos-label', POS_LBL[String(G.current.position)] ?? '—');
   refreshUndo();
   vibe(15);
 }
@@ -383,6 +435,7 @@ function openQuarterNotes() {
 }
 
 function endQuarter() {
+  flushPosition();   // commit any pending position change into this quarter
   G.current.scoreAtEnd = {
     hammondPark: { ...G.score.hp, score: calcTotal(G.score.hp) },
     opposition:  { ...G.score.opp, score: calcTotal(G.score.opp) },
@@ -766,6 +819,8 @@ function onTrackerMenuAction(lang, action) {
 export async function renderTracker(lang, round) {
   _lang = lang;
   if (_timerIv) { clearInterval(_timerIv); _timerIv = null; }
+  if (_posTimer) { clearTimeout(_posTimer); _posTimer = null; }
+  _posStart = null; _posDisplay = null;
 
   const app   = document.getElementById('app');
   const today = new Date().toISOString().split('T')[0];
@@ -861,9 +916,11 @@ export async function renderTracker(lang, round) {
       </section>
 
       <div class="alek-strip">
-        <span class="alek-strip__name">${icon('star', 'alek-strip__star')} ${_player.name.toUpperCase()} #${_player.number}</span>
-        <button class="alek-strip__pos" id="pos-btn"><span id="pos-label">${POS_LBL[String(G.current.position)] ?? '—'}</span></button>
+        <span class="alek-strip__name">${icon('star', 'alek-strip__star')} #${_player.number}</span>
         <span class="alek-strip__stats" id="alek-stats">—</span>
+        <button class="alek-strip__pos" id="pos-btn" aria-label="Position — tap to change">
+          <span class="alek-strip__pos-lbl" id="pos-label">${POS_LBL[String(G.current.position)] ?? '—'}</span>
+        </button>
       </div>
 
       <div class="stat-btns">
@@ -890,6 +947,7 @@ export async function renderTracker(lang, round) {
     </div>`;
 
   document.getElementById('back-btn').addEventListener('click', () => {
+    flushPosition();   // don't lose a settled-but-uncommitted change on exit
     if (_timerIv) { clearInterval(_timerIv); _timerIv = null; }
     window.location.hash = `#/${lang}`;
   });
