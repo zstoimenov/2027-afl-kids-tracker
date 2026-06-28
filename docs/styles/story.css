@@ -310,6 +310,54 @@
 
 .rstat__den { font-size: 0.85rem; font-weight: 700; color: var(--text-lo); letter-spacing: 0; }
 
+.rstat__sub {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--green-accent);
+}
+
+/* ---- Season Arc hero ---- */
+
+.season-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 14px 0 16px;
+  padding: 20px 18px;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.03)), var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.28), var(--edge-top), var(--lift-sm);
+  border-radius: 20px;
+}
+
+.season-hero__record {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 3.2rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text-hi);
+  font-variant-numeric: tabular-nums;
+}
+
+.season-hero__record span { font-size: 1.6rem; font-weight: 300; color: var(--text-lo); }
+
+.season-hero__label {
+  margin-top: 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green-accent);
+}
+
+.season-arc__text { margin-top: 22px; }
+
 .rstat__label {
   font-size: 0.54rem;
   font-weight: 800;

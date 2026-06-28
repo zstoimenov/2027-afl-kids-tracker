@@ -10,11 +10,13 @@ const PAGES = {
   en: [
     { key: 'tracker',  href: '#/en/tracker', ic: 'track',    label: 'Track a Game' },
     { key: 'reports',  href: '#/en/reports', ic: 'reports',  label: 'Match Reports' },
+    { key: 'season',   href: '#/en/arc',     ic: 'season',   label: 'Season Summary' },
     { key: 'fixtures', href: '#/en',         ic: 'fixtures', label: 'Fixtures &amp; Results' },
   ],
   bg: [
     { key: 'fixtures', href: '#/bg',         ic: 'fixtures', label: 'Мачове &amp; Резултати' },
     { key: 'stories',  href: '#/bg/seasons', ic: 'stories',  label: 'Истории' },
+    { key: 'season',   href: '#/bg/arc',     ic: 'season',   label: 'Сезонен преглед' },
   ],
 };
 

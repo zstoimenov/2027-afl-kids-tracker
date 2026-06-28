@@ -38,6 +38,8 @@ const P = {
   fixtures:'<rect x="4" y="5" width="16" height="15" rx="2.2"/><line x1="4" y1="9.5" x2="20" y2="9.5"/><line x1="8.5" y1="3" x2="8.5" y2="6.5"/><line x1="15.5" y1="3" x2="15.5" y2="6.5"/>',
   stories: '<path d="M12 6.6C10.4 5.1 7.6 4.6 4.5 5.1v13c3.1-0.5 5.9 0 7.5 1.5 1.6-1.5 4.4-2 7.5-1.5v-13c-3.1-0.5-5.9 0-7.5 1.5z"/><line x1="12" y1="6.6" x2="12" y2="20.1"/>',
   install: '<line x1="12" y1="3.5" x2="12" y2="14.5"/><polyline points="7.5,10 12,14.5 16.5,10"/><path d="M4.5 17v1.5a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V17"/>',
+  // Season — telemetry bar chart on a baseline
+  season:  '<line x1="3" y1="20.5" x2="21" y2="20.5"/><line x1="6.5" y1="20.5" x2="6.5" y2="14.5"/><line x1="11" y1="20.5" x2="11" y2="9.5"/><line x1="15.5" y1="20.5" x2="15.5" y2="5"/><line x1="20" y1="20.5" x2="20" y2="12"/>',
 };
 
 export function icon(name, cls = '') {
