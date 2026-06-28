@@ -208,6 +208,12 @@ async function loadGame(date) {
 
 const MOOD_ICON = { motivated: 'moodUp', neutral: 'moodFlat', tired: 'moodDown' };
 const POS_LBL_S = { def: 'DEF', mid: 'MID', fwd: 'FWD' };
+const POS_FULL  = {
+  def: { en: 'Defence',   bg: 'Защита' },
+  mid: { en: 'Midfield',  bg: 'Полузащита' },
+  fwd: { en: 'Forward',   bg: 'Нападение' },
+  none: { en: 'Unset / bench', bg: 'Без позиция' },
+};
 
 // Match Reports list — every game that has stats and/or a story.
 export async function renderReports(lang) {
@@ -348,6 +354,57 @@ function statsBlock(game, isEn, player) {
     </div>` : ''}`;
 }
 
+// By-position breakdown — aggregates Alek's timestamped action events by the
+// position he was in when each happened, so stats follow mid-quarter changes.
+function positionBlock(game, isEn) {
+  const events = (game.events || []).filter(e => e.action && e.action !== 'position');
+  if (!events.length) return '';
+
+  const agg = {};
+  const bucket = p => (agg[p || 'none'] ??= {
+    goals: 0, behinds: 0, shots: 0,
+    marks: 0, marksOk: 0, disp: 0, dispOk: 0, tack: 0, tackOk: 0, points: 0,
+  });
+  let any = false;
+
+  for (const e of events) {
+    const b = bucket(e.position);
+    if (e.scorer === 'alek' && e.action === 'goal')        { b.goals++;   b.shots++; b.points += 6; any = true; }
+    else if (e.scorer === 'alek' && e.action === 'behind') { b.behinds++; b.shots++; b.points += 1; any = true; }
+    else if (e.action === 'shot')                          { b.shots++;   any = true; }
+    else if (e.action === 'marks')     { b.marks++; if (e.ok) b.marksOk++; any = true; }
+    else if (e.action === 'disposals') { b.disp++;  if (e.ok) b.dispOk++;  any = true; }
+    else if (e.action === 'tackles')   { b.tack++;  if (e.ok) b.tackOk++;  any = true; }
+  }
+  if (!any) return '';
+
+  const order = ['fwd', 'mid', 'def', 'none'];
+  const rows = order.filter(p => agg[p]).map(p => {
+    const b = agg[p];
+    const bits = [
+      b.goals   && `${b.goals}G`,
+      b.behinds && `${b.behinds}B`,
+      b.shots   && `${b.shots}sh`,
+      b.marks   && `${b.marksOk}/${b.marks}M`,
+      b.disp    && `${b.dispOk}/${b.disp}D`,
+      b.tack    && `${b.tackOk}/${b.tack}T`,
+    ].filter(Boolean).join(' · ') || '—';
+    const label = (POS_FULL[p] || POS_FULL.none)[isEn ? 'en' : 'bg'];
+    return `
+      <div class="rposition">
+        <span class="rposition__pos">${label}</span>
+        <span class="rposition__pts">${b.points} ${isEn ? 'pts' : 'т'}</span>
+        <span class="rposition__stats">${bits}</span>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="report-section">
+      <div class="report-section__label">${isEn ? 'By position' : 'По позиция'}</div>
+      <div class="rpositions">${rows}</div>
+    </div>`;
+}
+
 // Score timeline — a margin "worm" of cumulative HP minus opposition points
 // across the game. Positive (above the line, green) = Hammond Park ahead;
 // negative (below, red) = behind. Vertical lines mark the quarter breaks.
@@ -444,6 +501,7 @@ export async function renderReport(lang, date) {
 
   const statsHtml    = game ? statsBlock(game, isEn, player) : '';
   const timelineHtml = game ? timelineGraph(game, isEn) : '';
+  const positionHtml = game ? positionBlock(game, isEn) : '';
 
   // Commentator comes from the story file; coach notes use the written story
   // coach if present, otherwise the game's own debrief (didWell / workOn).
@@ -480,6 +538,7 @@ export async function renderReport(lang, date) {
       <div class="report-meta">${round ? `${isEn ? 'Round' : 'Кръг'} ${round} · ` : ''}${date}</div>
       ${statsHtml}
       ${timelineHtml}
+      ${positionHtml}
       ${coachHtml}
       ${headlineHtml}
       ${commentaryHtml}

@@ -213,12 +213,13 @@ function refreshUndo() {
 }
 
 // Record an action onto the undo log AND the timestamped event stream (1:1),
-// stamping each with the quarter and seconds-from-quarter-start.
+// stamping each with the quarter, seconds-from-quarter-start, and the position
+// Alek is in at that moment (so stats follow mid-quarter position changes).
 function logAction(logEntry, eventData) {
   const q = G.quarter, t = elapsedInQuarter();
   G.log.push({ ...logEntry, q, t });
   if (!G.events) G.events = [];
-  G.events.push({ quarter: q, time: t, ...eventData });
+  G.events.push({ quarter: q, time: t, position: G.current.position, ...eventData });
 }
 
 function recordShotAttempt() {
@@ -260,6 +261,9 @@ function undoLast() {
   if (!last) return;
   if (G.events?.length) G.events.pop();   // log and events are pushed 1:1
   switch (last.type) {
+    case 'position':
+      G.current.position = last.from;
+      break;
     case 'shot':
       G.current.stats.goalAttempts--;
       break;
@@ -285,10 +289,22 @@ function undoLast() {
 /* ---- position ---- */
 
 function cyclePosition() {
-  const idx = POSITIONS.indexOf(G.current.position);
-  G.current.position = POSITIONS[(idx + 1) % POSITIONS.length];
+  const from = G.current.position;
+  const idx  = POSITIONS.indexOf(from);
+  const to   = POSITIONS[(idx + 1) % POSITIONS.length];
+  G.current.position = to;
+
+  // Timestamp the substitution / position change so stats can be split across
+  // the moment of the change, even mid-quarter. Logged 1:1 so it is undoable.
+  const q = G.quarter, t = elapsedInQuarter();
+  G.log.push({ type: 'position', from, to, q, t });
+  if (!G.events) G.events = [];
+  G.events.push({ quarter: q, time: t, action: 'position', from, to });
+
   saveState();
-  setTxt('pos-label', POS_LBL[String(G.current.position)] ?? '—');
+  setTxt('pos-label', POS_LBL[String(to)] ?? '—');
+  refreshUndo();
+  vibe(15);
 }
 
 /* ---- pre-game timer edit ---- */
@@ -574,6 +590,9 @@ function buildExportJson() {
       quarter: e.quarter,
       time:    e.time,
       action:  e.action,
+      ...(e.action === 'position'
+        ? { from: e.from ?? null, to: e.to ?? null }
+        : { position: e.position ?? null }),
       ...(e.team   != null ? { team: e.team }     : {}),
       ...(e.scorer != null ? { scorer: e.scorer } : {}),
       ...(e.points != null ? { points: e.points } : {}),
