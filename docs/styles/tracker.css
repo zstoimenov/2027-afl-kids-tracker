@@ -360,13 +360,14 @@
 .alek-strip__name {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 0.72rem;
+  gap: 6px;
+  font-size: 0.82rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-hi);
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .alek-strip__star { width: 15px; height: 15px; color: var(--green-accent); }
@@ -393,16 +394,30 @@
 
 .alek-strip__pos:active { transform: translateY(1px) scale(0.96); color: var(--green-accent); box-shadow: var(--press); }
 
+/* While cycling through positions to reach the one you want — not yet logged. */
+.alek-strip__pos--settling {
+  color: var(--green-accent);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.55);
+  animation: posSettle 1.1s ease-in-out;
+}
+
+@keyframes posSettle {
+  0%   { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.9), 0 0 14px rgba(34, 197, 94, 0.3); }
+  100% { box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.25); }
+}
+
 .alek-strip__stats {
-  font-size: 0.86rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--green-accent);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-align: right;
   flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---- Stat buttons — bigger for outdoor / cold weather use ---- */
