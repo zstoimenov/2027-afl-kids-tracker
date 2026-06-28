@@ -286,28 +286,37 @@ function statsBlock(game, isEn, player) {
   const oppName = (game.opponent || 'OPP').toUpperCase().substring(0, 12);
   const points  = a.points ?? ((sc.goals || 0) * 6 + (sc.behinds || 0));
 
-  const teamBlock = (name, t) =>
-    `<div class="rscore__team"><div class="rscore__name">${name}</div><div class="rscore__val">${t.goals || 0}.${t.behinds || 0} <em>(${t.score || 0})</em></div></div>`;
-  const hpBlock  = teamBlock('HP BLUE', hp);
-  const oppBlock = teamBlock(oppName, opp);
+  // Team result is dominant (total score big); goals.behinds is secondary.
+  const teamBlock = (name, t, hp) =>
+    `<div class="rscore__team${hp ? ' rscore__team--hp' : ''}">
+      <div class="rscore__name">${name}</div>
+      <div class="rscore__score">${t.score || 0}</div>
+      <div class="rscore__gb">${t.goals || 0}.${t.behinds || 0}</div>
+    </div>`;
+  const hpBlock  = teamBlock('HP BLUE', hp, true);
+  const oppBlock = teamBlock(oppName, opp, false);
 
-  const quarters = (game.quarters || []).map(q => {
-    const qa = q.aleksStats || {};
-    const bits = [
-      qa.scoring?.goals   && `${qa.scoring.goals}G`,
-      qa.scoring?.behinds && `${qa.scoring.behinds}B`,
-      qa.marks?.successful     && `${qa.marks.successful}M`,
-      qa.disposals?.successful && `${qa.disposals.successful}D`,
-      qa.tackles?.successful   && `${qa.tackles.successful}T`,
+  const qbits = qa => {
+    const xyq = o => (o?.attempts ? `${o.successful || 0}/${o.attempts}` : null);
+    return [
+      qa.scoring?.goals        && `${qa.scoring.goals}G`,
+      qa.scoring?.behinds      && `${qa.scoring.behinds}B`,
+      qa.scoring?.goalAttempts && `${qa.scoring.goalAttempts}sh`,
+      xyq(qa.marks)     && `${xyq(qa.marks)}M`,
+      xyq(qa.disposals) && `${xyq(qa.disposals)}D`,
+      xyq(qa.tackles)   && `${xyq(qa.tackles)}T`,
     ].filter(Boolean).join(' · ') || '—';
-    return `
+  };
+
+  const quarters = (game.quarters || []).map(q => `
       <div class="rquarter">
         <span class="rquarter__q">Q${q.quarter}</span>
         <span class="rquarter__mood">${q.mood ? icon(MOOD_ICON[q.mood]) : ''}</span>
         <span class="rquarter__pos">${POS_LBL_S[q.position] || ''}</span>
-        <span class="rquarter__stats">${bits}</span>
-      </div>`;
-  }).join('');
+        <span class="rquarter__stats">${qbits(q.aleksStats || {})}</span>
+      </div>`).join('');
+
+  const shotAcc = sc.goalAttempts ? `${Math.round((sc.goals || 0) / sc.goalAttempts * 100)}% ${isEn ? 'acc' : 'точ'}` : '';
 
   return `
     <div class="rscore">
@@ -321,10 +330,10 @@ function statsBlock(game, isEn, player) {
     <div class="rstat-grid">
       ${statTile('goal',     sc.goals || 0,        isEn ? 'Goals' : 'Голове')}
       ${statTile('behind',   sc.behinds || 0,      isEn ? 'Behinds' : 'Бихайнди')}
-      ${statTile('shot',     sc.goalAttempts || 0, isEn ? 'Shots' : 'Удари')}
-      ${statTile('mark',     xy(a.marks),          isEn ? 'Marks' : 'Маркове')}
-      ${statTile('disposal', xy(a.disposals),      isEn ? 'Disposals' : 'Подавания')}
-      ${statTile('tackle',   xy(a.tackles),        isEn ? 'Tackles' : 'Такъли')}
+      ${statTile('shot',     sc.goalAttempts || 0, isEn ? 'Shots' : 'Удари', shotAcc)}
+      ${statTile('mark',     xy(a.marks),          isEn ? 'Marks' : 'Маркове',    pct(a.marks?.successful, a.marks?.attempts))}
+      ${statTile('disposal', xy(a.disposals),      isEn ? 'Disposals' : 'Подавания', pct(a.disposals?.successful, a.disposals?.attempts))}
+      ${statTile('tackle',   xy(a.tackles),        isEn ? 'Tackles' : 'Такъли',   pct(a.tackles?.successful, a.tackles?.attempts))}
     </div>
 
     <div class="rpoints">
@@ -392,9 +401,9 @@ export async function renderReport(lang, date) {
     <div class="story-content">
       <div class="report-meta">${round ? `${isEn ? 'Round' : 'Кръг'} ${round} · ` : ''}${date}</div>
       ${statsHtml}
+      ${coachHtml}
       ${headlineHtml}
       ${commentaryHtml}
-      ${coachHtml}
     </div>`;
 }
 

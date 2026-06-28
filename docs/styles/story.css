@@ -247,20 +247,35 @@
 .rscore__team:last-child { text-align: right; }
 
 .rscore__name {
-  font-size: 0.56rem;
+  font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-lo);
-  margin-bottom: 4px;
+  color: var(--text-mid);
+  margin-bottom: 6px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.rscore__val { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.01em; color: var(--text-hi); }
-.rscore__val em { font-style: normal; font-size: 0.9rem; color: var(--text-mid); font-weight: 700; }
-.rscore__chip { flex-shrink: 0; font-size: 0.6rem !important; padding: 4px 10px !important; }
+/* Total score dominant; goals.behinds secondary */
+.rscore__score {
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  color: var(--text-hi);
+  font-variant-numeric: tabular-nums;
+}
+.rscore__team--hp .rscore__score { color: var(--green-accent); }
+.rscore__gb {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-lo);
+  letter-spacing: 0.02em;
+}
+.rscore__chip { flex-shrink: 0; font-size: 0.62rem !important; padding: 5px 11px !important; }
 
 .rplayer {
   display: flex;
