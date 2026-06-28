@@ -1,3 +1,5 @@
+import { getConfig, teamName } from './config.js';
+
 const MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const MONTHS_BG = ['ЯНУ','ФЕВ','МАР','АПР','МАЙ','ЮНИ','ЮЛИ','АВГ','СЕП','ОКТ','НОЕ','ДЕК'];
 const BASE_SEASON = 2026;
@@ -56,6 +58,43 @@ function gameState(round, today) {
   if (round.date === today) return 'today';
   if (round.date < today) return 'past';
   return 'upcoming';
+}
+
+/* ---- Game data pipeline: results come from saved game files ---- */
+
+// index.json lists which dates have a game-YYYY-MM-DD.json saved.
+async function loadGameIndex() {
+  try {
+    const resp = await fetch('./data/games/index.json');
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return Array.isArray(data.games) ? data.games : [];
+  } catch { return []; }
+}
+
+// Derive a fixtures-shaped result from a saved game file's totals.
+async function loadGameResult(date) {
+  try {
+    const resp = await fetch(`./data/games/game-${date}.json`);
+    if (!resp.ok) return null;
+    const ts = (await resp.json()).totals?.teamScore;
+    if (!ts || !ts.hammondPark || !ts.opposition) return null;
+    const hp = ts.hammondPark, opp = ts.opposition;
+    const winner = hp.score > opp.score ? 'hammondPark'
+                 : opp.score > hp.score ? 'opposition' : 'draw';
+    return { hammondPark: hp, opposition: opp, winner };
+  } catch { return null; }
+}
+
+// Build a date -> result map for the given season (overrides fixtures.json).
+async function loadSeasonResults(year) {
+  const dates = (await loadGameIndex()).filter(d => d.startsWith(`${year}-`));
+  const map = {};
+  await Promise.all(dates.map(async d => {
+    const r = await loadGameResult(d);
+    if (r) map[d] = r;
+  }));
+  return map;
 }
 
 /* ---- English card ---- */
@@ -301,6 +340,7 @@ export async function renderFixtures(lang) {
   const app   = document.getElementById('app');
   const isEn  = lang === 'en';
   const today = new Date().toISOString().split('T')[0];
+  const club  = teamName(await getConfig());
 
   // Header menu — only links to pages that exist, per language.
   const menuItems = isEn
@@ -328,7 +368,7 @@ export async function renderFixtures(lang) {
       <header class="screen-header">
         <button class="back-btn" id="back-btn" aria-label="${isEn ? 'Back' : 'Назад'}">‹</button>
         <div class="screen-header__mid">
-          <div class="screen-header__club">Hammond Park Blue</div>
+          <div class="screen-header__club">${club}</div>
           <h1 class="screen-header__title">${isEn ? 'Fixtures &amp; Results' : 'Мачове &amp; Резултати'}</h1>
         </div>
         <div class="header-menu-wrap">
@@ -429,6 +469,13 @@ export async function renderFixtures(lang) {
       const data = await resp.json();
 
       currentRounds = data.rounds;
+
+      // Game data pipeline: where a game file is saved, its result overrides
+      // whatever is hard-coded in fixtures.json (single source of truth = the game).
+      const results = await loadSeasonResults(year);
+      currentRounds.forEach(r => {
+        if (r.date && results[r.date]) r.result = results[r.date];
+      });
 
       // Discover which rounds (and prologue) have a story for THIS season.
       const story = lang === 'bg'
