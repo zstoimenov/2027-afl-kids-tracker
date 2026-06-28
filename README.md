@@ -156,7 +156,7 @@ The tracker saves game JSON via clipboard → GitHub Mobile paste. Saved game fi
 
 ---
 
-### Phase 6 — Match Reports & Story Generation 🚧 In progress
+### Phase 6 — Match Reports & Story Generation ✅ Complete
 
 Claude generates stories from game JSON. Stories are saved once and never regenerated unless explicitly requested.
 
@@ -167,9 +167,14 @@ Claude generates stories from game JSON. Stories are saved once and never regene
 | BG story format: warm grandparent-tone narrative | ✅ Done — same per-game schema (`bulgarian.*`); season narrative bundle also retained |
 | Story saved to `docs/data/stories/story-YYYY-MM-DD.json` + `index.json` | ✅ Format + manifest ready (`stories/index.json`); files added per game |
 | EN Match Reports screen (Alek-facing) | ✅ Done — list + reader (`#/en/reports`, `#/en/report/{date}`), tasteful empty state |
-| Existing BG chapters expanded to 3–5 minute reads | 🚧 In progress — prologue + early chapters done; rest rolling forward |
+| BG Match Reports screen | ✅ Done — `#/bg/reports`, `#/bg/report/{date}` |
+| Score timeline graph | ✅ Done — SVG margin worm; HP above midline (green), opposition below (red); quarter separators; renders when events stream is present |
+| By-position breakdown | ✅ Done — aggregates events stream by position; points + stat counts per position played |
+| Existing BG chapters expanded | 🚧 Partial — prologue + chapters 1–3 rewritten to ~3 min reads; chapters 4–9 still at original length |
 
 > **Two story shapes, by design:** the **BG Game Stories** are the warm season-narrative chapters (the `2026.json` bundle, read via the season picker) — kept because they make the best long-form grandparent read. The **per-game `story-YYYY-MM-DD.json`** format (headline / commentator / coach, EN + BG) drives the new **Match Reports** screen and any future generated stories. The BG narrative bundle is not being force-migrated into per-game files.
+>
+> **Events stream note:** historical games (rounds 1–9, 2026) predate the events stream and have `events: []`. The timeline graph and by-position breakdown only render when events are present — i.e. for games tracked live going forward.
 
 ---
 
@@ -183,6 +188,34 @@ Claude generates stories from game JSON. Stories are saved once and never regene
 | BG Season Arc screen | ✅ Done — same stats, warm grandparent-tone arc |
 
 The Season screen aggregates every game file for the season live (record, goals/behinds/shots, marks/disposals/tackles with success %, total points) and renders the saved arc narrative underneath. Added to both header menus.
+
+---
+
+### Tracker overhaul ✅ Complete (post-Phase 7)
+
+| Task | Status |
+|---|---|
+| Timer moved into scoreboard top row (Q chip / clock / run button) | ✅ Done — three-column grid layout; clock dominates at `clamp(2rem, 9vw, 3rem)` |
+| Team names prominent below scores; HP name in green | ✅ Done |
+| New Game action in tracker header menu | ✅ Done — confirms if game in progress before clearing state |
+| Undo button disabled correctly when no actions or position cycle settling | ✅ Done |
+| Player strip: number only (`#13`), no name; stats never truncate | ✅ Done |
+| Position button on the right of the stat line | ✅ Done |
+| Debounced position cycling with timestamp | ✅ Done — 1.1s settle; only the final position is recorded; timestamp stamped at first tap of a burst |
+| Events stream in exported JSON | ✅ Done — every action carries `{quarter, time, action, position, …}`; position changes carry `{from, to}` |
+| By-position stat attribution | ✅ Done — stats attributed to position at time of action; position changes logged with from/to and timestamp |
+
+**Events stream schema** (added to `game-YYYY-MM-DD.json`):
+
+```json
+"events": [
+  { "quarter": 1, "time": 55,  "action": "position", "from": "mid", "to": "fwd" },
+  { "quarter": 1, "time": 142, "action": "goal",     "position": "fwd", "team": "hp", "scorer": "alek", "points": 6 },
+  { "quarter": 1, "time": 300, "action": "mark",     "position": "fwd", "ok": true }
+]
+```
+
+`time` is seconds elapsed from the quarter start (0 = kick-off, `quarterDuration` = siren). Position changes carry `from`/`to` instead of `position`. Historical games (rounds 1–9) have `events: []`.
 
 ---
 
@@ -255,6 +288,22 @@ A running summary of what's been built. Newest at the bottom.
 
 ### Phase 7 — Season Arc
 - **Season screen** (`#/en/arc`, `#/bg/arc`): aggregates all game files live — record (8–1), goals/behinds/shots, marks/disposals/tackles with success %, season points (42) — then the **season arc** narrative (`stories/season-2026.json`, EN + BG). Added to both menus.
+
+### Phase 6 — Match Reports (completed)
+- **Score timeline graph**: SVG margin worm drawn from the events stream. HP margin above the midline (green fill), opposition margin below (red fill). Dashed quarter separators. Only renders when a game has an events stream.
+- **By-position breakdown**: aggregates every action in the events stream by Alek's position at the time. Shows goals/behinds/shots + marks/disposals/tackles per position played. Only renders when position-change events are present.
+- **BG match reports** screen added (`#/bg/reports`, `#/bg/report/{date}`) — warm Bulgarian tone.
+- Report body order: stats → timeline → by-position → coach → headline → commentator.
+
+### Tracker overhaul
+- **Scoreboard rebuilt**: timer promoted into the scoreboard top row as a three-column grid (Q chip | clock | run button). Clock is the visual anchor at up to 3 rem bold.
+- **Team names prominent**: displayed below scores, HP name in green.
+- **New Game** added to the tracker's header menu — confirms if a game is in progress before clearing.
+- **Player strip cleanup**: name removed (number only, `#13`); stats no longer truncate; position button moved to the right.
+- **Debounced position cycling**: cycling through positions to reach the target no longer logs every intermediate step. The settle timer is 1.1s; the timestamp is stamped at the first tap of a burst (the moment the substitution actually happened on the field). Round-trips log nothing.
+- **Events stream**: every tracked action is now written to `G.events` with `{quarter, time, action, position, …}`. Position changes carry `{from, to}`. Exported in the clipboard JSON. Historical games (rounds 1–9) predate this and have `events: []`.
+- **Undo** correctly handles in-flight position cycles (cancels rather than popping) and position log entries (restores the previous position).
+- **Service worker** bumped to `afl-shell-v33`.
 
 ---
 
