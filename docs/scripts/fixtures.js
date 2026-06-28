@@ -259,6 +259,8 @@ function buildCard(round, lang, today, year, storyRounds) {
   if (state === 'today')     classes.push('fixture-card--today');
   else if (state === 'past') classes.push('fixture-card--past');
   else if (state === 'tbd')  classes.push('fixture-card--tbd');
+  if (round.homeAway === 'home')      classes.push('fixture-card--home');
+  else if (round.homeAway === 'away') classes.push('fixture-card--away');
 
   const inner = lang === 'bg' ? cardBg(round, state) : cardEn(round, state);
 

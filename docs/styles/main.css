@@ -12,6 +12,11 @@
   --ink: #0b0f0c;
   --muted: rgba(255, 255, 255, 0.72);
 
+  /* Subtle home/away accent — green at home, soft steel away (away = white/neutral) */
+  --accent-home: #22c55e;
+  --accent-away: #9fb2c4;
+  --ha-accent: var(--accent-home);
+
   --bg-au: #00843d;   /* Aussie green */
   --bg-bg: #d62612;   /* Bulgarian red */
 

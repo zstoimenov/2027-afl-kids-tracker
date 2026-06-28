@@ -749,7 +749,7 @@ export async function renderTracker(lang, round) {
   const rightSide = isHome ? oppSide : hpSide;
 
   app.innerHTML = `
-    <div class="screen tracker-screen">
+    <div class="screen tracker-screen tracker-screen--${isHome ? 'home' : 'away'}">
 
       <div class="ctrl-bar">
         <button class="ctrl-back" id="back-btn">‹</button>

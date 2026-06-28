@@ -395,10 +395,25 @@
 }
 
 .ha-chip--away {
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(159, 178, 196, 0.12);
+  color: #b9c7d4;
+  border: 1px solid rgba(159, 178, 196, 0.28);
 }
+
+/* Subtle home/away accent stripe down the left edge of each card */
+.fixture-card--home::before,
+.fixture-card--away::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+}
+
+.fixture-card--home::before { background: var(--accent-home); opacity: 0.5; }
+.fixture-card--away::before { background: var(--accent-away); opacity: 0.5; }
 
 /* ---- Opponent / Narrative ---- */
 

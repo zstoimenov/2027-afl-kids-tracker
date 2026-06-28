@@ -11,6 +11,10 @@
   gap: 0;
 }
 
+/* Subtle home/away accent for this game (green at home, soft steel away) */
+.tracker-screen--home { --ha-accent: var(--accent-home); }
+.tracker-screen--away { --ha-accent: var(--accent-away); }
+
 /* ---- Row 1: Control bar ---- */
 
 .ctrl-bar {
@@ -174,6 +178,7 @@
 /* ---- Scoreboard (dominant section) — card frame ---- */
 
 .scoreboard {
+  position: relative;
   flex: 1;
   min-height: 0;
   display: flex;
@@ -185,6 +190,20 @@
   background: rgba(16, 16, 22, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 18px;
+}
+
+/* Subtle home/away accent tab at the top of the scoreboard */
+.scoreboard::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 46px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--ha-accent);
+  opacity: 0.7;
 }
 
 .scoreboard__side {
@@ -205,6 +224,12 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.28);
+}
+
+/* HP side's HOME/AWAY label carries the subtle home/away accent */
+.scoreboard__side--hp .scoreboard__ha {
+  color: var(--ha-accent);
+  opacity: 0.85;
 }
 
 .scoreboard__name {
