@@ -11,3 +11,6 @@ jobs:
     steps:
       - name: Auto-approve the Pull Request
         uses: hmarr/auto-approve-action@v4
+        with:
+          # This forces the action to explicitly use the GitHub Actions Bot identity
+          github-token: ${{ secrets.GITHUB_TOKEN }}
