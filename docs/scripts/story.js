@@ -1,4 +1,4 @@
-import { getConfig, teamName } from './config.js';
+import { getConfig, teamName, playerInfo } from './config.js';
 import { menuButtonHtml, attachMenu } from './menu.js';
 import { icon } from './icons.js';
 
@@ -170,7 +170,7 @@ export async function renderStory(lang, id, year = BASE_SEASON) {
     </div>`;
 }
 
-/* ---- Match Reports (per-game stories: headline / commentator / coach) ---- */
+/* ---- Match Reports: per-game stats + commentator + coach ---- */
 
 async function loadStoryIndex() {
   try {
@@ -178,6 +178,15 @@ async function loadStoryIndex() {
     if (!resp.ok) return [];
     const data = await resp.json();
     return Array.isArray(data.stories) ? data.stories : [];
+  } catch { return []; }
+}
+
+async function loadGameIndexDates() {
+  try {
+    const resp = await fetch('./data/games/index.json');
+    if (!resp.ok) return [];
+    const data = await resp.json();
+    return Array.isArray(data.games) ? data.games : [];
   } catch { return []; }
 }
 
@@ -189,15 +198,28 @@ async function loadGameStory(date) {
   } catch { return null; }
 }
 
-// Match Reports list (English, kid-facing).
+async function loadGame(date) {
+  try {
+    const resp = await fetch(`./data/games/game-${date}.json`);
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch { return null; }
+}
+
+const MOOD_ICON = { motivated: 'moodUp', neutral: 'moodFlat', tired: 'moodDown' };
+const POS_LBL_S = { def: 'DEF', mid: 'MID', fwd: 'FWD' };
+
+// Match Reports list — every game that has stats and/or a story.
 export async function renderReports(lang) {
   const isEn = lang === 'en';
   const club = teamName(await getConfig());
   const body = shell(lang, isEn ? 'Match Reports' : 'Репортажи', `#/${lang}`, club, 'reports');
 
-  const entries = (await loadStoryIndex())
-    .slice()
-    .sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  const [storyEntries, gameDates] = await Promise.all([loadStoryIndex(), loadGameIndexDates()]);
+  const byDate = new Map();
+  storyEntries.forEach(e => byDate.set(e.date, { date: e.date, round: e.round }));
+  gameDates.forEach(d => { if (!byDate.has(d)) byDate.set(d, { date: d, round: null }); });
+  const entries = [...byDate.values()].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   if (!entries.length) {
     body.innerHTML = `
@@ -215,13 +237,13 @@ export async function renderReports(lang) {
 
   const cards = await Promise.all(entries.map(async e => {
     const s = await loadGameStory(e.date);
-    const headline = s?.english?.headline || (isEn ? 'Match report' : 'Репортаж');
+    const headline = s?.english?.headline || (isEn ? "Alek's game" : 'Мачът на Алек');
     const round = e.round ?? s?.round ?? '';
     return `
       <button class="report-card" data-date="${e.date}" type="button">
-        <div class="report-card__meta">${isEn ? 'Round' : 'Кръг'} ${round} · ${e.date}</div>
+        <div class="report-card__meta">${round ? `${isEn ? 'Round' : 'Кръг'} ${round} · ` : ''}${e.date}</div>
         <div class="report-card__headline">${headline}</div>
-        <span class="report-card__arrow">›</span>
+        <span class="report-card__arrow">${icon('chevron')}</span>
       </button>`;
   }));
 
@@ -233,30 +255,131 @@ export async function renderReports(lang) {
   });
 }
 
-// A single match report.
+/* ---- stats rendering ---- */
+
+function xy(o) {
+  return `${o?.successful || 0}<span class="rstat__den">/${o?.attempts || 0}</span>`;
+}
+
+function statTile(ic, value, label) {
+  return `
+    <div class="rstat">
+      <span class="rstat__icon">${icon(ic)}</span>
+      <span class="rstat__val">${value}</span>
+      <span class="rstat__label">${label}</span>
+    </div>`;
+}
+
+function statsBlock(game, isEn, player) {
+  const a   = game.totals?.aleksStats || {};
+  const sc  = a.scoring || {};
+  const ts  = game.totals?.teamScore || {};
+  const hp  = ts.hammondPark || { goals: 0, behinds: 0, score: 0 };
+  const opp = ts.opposition  || { goals: 0, behinds: 0, score: 0 };
+  const isHome = game.homeAway === 'home';
+  const hpWon = hp.score > opp.score, oppWon = opp.score > hp.score;
+  const result  = hpWon ? (isEn ? 'WIN' : 'ПОБЕДА') : oppWon ? (isEn ? 'LOSS' : 'ЗАГУБА') : (isEn ? 'DRAW' : 'РАВЕНСТВО');
+  const chipCls = hpWon ? 'win' : oppWon ? 'loss' : 'draw';
+  const oppName = (game.opponent || 'OPP').toUpperCase().substring(0, 12);
+  const points  = a.points ?? ((sc.goals || 0) * 6 + (sc.behinds || 0));
+
+  const teamBlock = (name, t) =>
+    `<div class="rscore__team"><div class="rscore__name">${name}</div><div class="rscore__val">${t.goals || 0}.${t.behinds || 0} <em>(${t.score || 0})</em></div></div>`;
+  const hpBlock  = teamBlock('HP BLUE', hp);
+  const oppBlock = teamBlock(oppName, opp);
+
+  const quarters = (game.quarters || []).map(q => {
+    const qa = q.aleksStats || {};
+    const bits = [
+      qa.scoring?.goals   && `${qa.scoring.goals}G`,
+      qa.scoring?.behinds && `${qa.scoring.behinds}B`,
+      qa.marks?.successful     && `${qa.marks.successful}M`,
+      qa.disposals?.successful && `${qa.disposals.successful}D`,
+      qa.tackles?.successful   && `${qa.tackles.successful}T`,
+    ].filter(Boolean).join(' · ') || '—';
+    return `
+      <div class="rquarter">
+        <span class="rquarter__q">Q${q.quarter}</span>
+        <span class="rquarter__mood">${q.mood ? icon(MOOD_ICON[q.mood]) : ''}</span>
+        <span class="rquarter__pos">${POS_LBL_S[q.position] || ''}</span>
+        <span class="rquarter__stats">${bits}</span>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="rscore">
+      ${isHome ? hpBlock : oppBlock}
+      <span class="result-chip result-chip--${chipCls} rscore__chip">${result}</span>
+      ${isHome ? oppBlock : hpBlock}
+    </div>
+
+    <div class="rplayer">${icon('star', 'rplayer__star')}<span>${player.name.toUpperCase()} #${player.number}</span></div>
+
+    <div class="rstat-grid">
+      ${statTile('goal',     sc.goals || 0,        isEn ? 'Goals' : 'Голове')}
+      ${statTile('behind',   sc.behinds || 0,      isEn ? 'Behinds' : 'Бихайнди')}
+      ${statTile('shot',     sc.goalAttempts || 0, isEn ? 'Shots' : 'Удари')}
+      ${statTile('mark',     xy(a.marks),          isEn ? 'Marks' : 'Маркове')}
+      ${statTile('disposal', xy(a.disposals),      isEn ? 'Disposals' : 'Подавания')}
+      ${statTile('tackle',   xy(a.tackles),        isEn ? 'Tackles' : 'Такъли')}
+    </div>
+
+    <div class="rpoints">
+      <span class="rpoints__label">${isEn ? 'Total points' : 'Общо точки'}</span>
+      <span class="rpoints__val">${points}</span>
+    </div>
+
+    ${quarters ? `
+    <div class="report-section">
+      <div class="report-section__label">${isEn ? 'By quarter' : 'По четвъртини'}</div>
+      <div class="rquarters">${quarters}</div>
+    </div>` : ''}`;
+}
+
+// A single game: stats + commentator + coach.
 export async function renderReport(lang, date) {
   const isEn = lang === 'en';
-  const club = teamName(await getConfig());
+  const cfg  = await getConfig();
+  const club = teamName(cfg);
+  const player = playerInfo(cfg);
   const body = shell(lang, isEn ? 'Match Report' : 'Репортаж', `#/${lang}/reports`, club, 'reports');
 
-  const s = await loadGameStory(date);
-  const story = isEn ? s?.english : s?.bulgarian;
-  if (!story) {
+  const [game, s] = await Promise.all([loadGame(date), loadGameStory(date)]);
+  if (!game && !s) {
     body.innerHTML = `<div class="story-empty">${isEn ? 'Report not available.' : 'Репортажът не е наличен.'}</div>`;
     return;
   }
 
-  body.innerHTML = `
-    <div class="story-content">
-      <div class="report-meta">${isEn ? 'Round' : 'Кръг'} ${s.round ?? ''} · ${s.game ?? date}</div>
-      <h2 class="story-title">${story.headline || ''}</h2>
+  const story = isEn ? s?.english : s?.bulgarian;
+  const round = s?.round ?? game?.round ?? '';
+
+  const statsHtml = game ? statsBlock(game, isEn, player) : '';
+
+  let narrativeHtml = '';
+  if (story) {
+    narrativeHtml = `
+      ${story.headline ? `<h2 class="story-title report-headline">${story.headline}</h2>` : ''}
+      ${story.commentator ? `
       <div class="report-section">
         <div class="report-section__label">${isEn ? 'The Call' : 'Репортаж'}</div>
         <div class="story-text">${paragraphs(story.commentator)}</div>
-      </div>
+      </div>` : ''}
+      ${story.coach ? `
       <div class="report-section">
         <div class="report-section__label">${isEn ? "Coach's Notes" : 'Бележки от треньора'}</div>
         <div class="story-text">${paragraphs(story.coach)}</div>
-      </div>
+      </div>` : ''}`;
+  } else if (game) {
+    narrativeHtml = `
+      <div class="report-section">
+        <div class="report-soon">${isEn ? 'The match story is coming soon.' : 'Историята на мача предстои.'}</div>
+      </div>`;
+  }
+
+  body.innerHTML = `
+    <div class="story-content">
+      <div class="report-meta">${round ? `${isEn ? 'Round' : 'Кръг'} ${round} · ` : ''}${date}</div>
+      ${statsHtml}
+      ${narrativeHtml}
     </div>`;
 }

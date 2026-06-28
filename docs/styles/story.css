@@ -192,6 +192,167 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.report-headline { margin-top: 22px; }
+
+.report-soon {
+  font-size: 0.92rem;
+  color: var(--text-mid);
+  font-style: italic;
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* ---- Per-game stats ---- */
+
+.rscore {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 16px 18px;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top), var(--lift-sm);
+  border-radius: 18px;
+}
+
+.rscore__team { flex: 1; min-width: 0; }
+.rscore__team:last-child { text-align: right; }
+
+.rscore__name {
+  font-size: 0.56rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rscore__val { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.01em; color: var(--text-hi); }
+.rscore__val em { font-style: normal; font-size: 0.9rem; color: var(--text-mid); font-weight: 700; }
+.rscore__chip { flex-shrink: 0; font-size: 0.6rem !important; padding: 4px 10px !important; }
+
+.rplayer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 18px 0 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-hi);
+}
+
+.rplayer__star { width: 16px; height: 16px; color: var(--green-accent); }
+
+.rstat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 9px;
+}
+
+.rstat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 6px 13px;
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--hairline), var(--edge-top), var(--lift-sm);
+  border-radius: 16px;
+}
+
+.rstat__icon { color: var(--green-accent); }
+.rstat__icon .icn { width: 24px; height: 24px; stroke-width: 1.5; }
+
+.rstat__val {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text-hi);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.rstat__den { font-size: 0.85rem; font-weight: 700; color: var(--text-lo); letter-spacing: 0; }
+
+.rstat__label {
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+}
+
+.rpoints {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 14px 18px;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.14), rgba(34, 197, 94, 0.04)), var(--glass);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.34), var(--edge-top), var(--lift-sm);
+  border-radius: 16px;
+}
+
+.rpoints__label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+}
+
+.rpoints__val {
+  font-size: 1.9rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--green-accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.rquarters { display: flex; flex-direction: column; gap: 2px; }
+
+.rquarter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+}
+
+.rquarter + .rquarter { box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06); }
+
+.rquarter__q {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--text-lo);
+  min-width: 22px;
+  text-transform: uppercase;
+}
+
+.rquarter__mood { display: inline-flex; color: var(--green-accent); }
+.rquarter__mood .icn { width: 15px; height: 15px; }
+
+.rquarter__pos {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--text-mid);
+  min-width: 28px;
+}
+
+.rquarter__stats { font-size: 0.78rem; font-weight: 600; color: var(--text-mid); flex: 1; }
+
 .report-section__label {
   font-size: 0.66rem;
   font-weight: 800;

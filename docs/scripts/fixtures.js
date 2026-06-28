@@ -255,7 +255,7 @@ function prologueShort(title) {
 
 /* ---- Full card ---- */
 
-function buildCard(round, lang, today, year, storyRounds) {
+function buildCard(round, lang, today, year, storyRounds, gameDates) {
   const state   = gameState(round, today);
   const classes = ['fixture-card'];
   if (state === 'today')     classes.push('fixture-card--today');
@@ -266,15 +266,20 @@ function buildCard(round, lang, today, year, storyRounds) {
 
   const inner = lang === 'bg' ? cardBg(round, state) : cardEn(round, state);
 
+  // BG: read the narrative story. EN: open Alek's game stats + report.
   const storyBtn = lang === 'bg' && (state === 'past' || (state === 'today' && hasResult(round))) && storyRounds.has(round.round)
     ? `<button class="card-story-btn" data-round="${round.round}" data-year="${year}">${icon('stories')}<span>Прочети историята</span></button>`
+    : '';
+
+  const reportBtn = lang === 'en' && (state === 'past' || state === 'today') && round.date && gameDates.has(round.date)
+    ? `<button class="card-report-btn" data-date="${round.date}">${icon('reports')}<span>ALEK'S GAME</span></button>`
     : '';
 
   return `
     <article class="${classes.join(' ')}" data-round="${round.round}" data-state="${state}">
       ${inner}
       ${scoreRow(round, lang, state)}
-      ${storyBtn}
+      ${storyBtn}${reportBtn}
     </article>`;
 }
 
@@ -340,6 +345,12 @@ export async function renderFixtures(lang) {
         window.location.hash = `#/bg/story/${btn.dataset.year}/${btn.dataset.round}`;
       });
     });
+    document.querySelectorAll('.card-report-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        window.location.hash = `#/en/report/${btn.dataset.date}`;
+      });
+    });
     const prologueCard = document.getElementById('prologue-card');
     if (prologueCard) {
       prologueCard.addEventListener('click', () => {
@@ -374,6 +385,9 @@ export async function renderFixtures(lang) {
         ? await loadStoryMeta(year)
         : { rounds: new Set(), prologue: null };
 
+      // EN: which dates have a saved game file (→ "Alek's Game" button).
+      const gameDates = new Set(Object.keys(results));
+
       const prologueHtml = (lang === 'bg' && story.prologue) ? `
         <button class="prologue-card" id="prologue-card" data-year="${year}" type="button">
           <div class="prologue-card__text">
@@ -383,7 +397,7 @@ export async function renderFixtures(lang) {
           <span class="prologue-card__arrow">${icon('chevron')}</span>
         </button>` : '';
 
-      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds)).join('');
+      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds, gameDates)).join('');
       attachListeners();
 
       const todayCard = list.querySelector('[data-state="today"]');
