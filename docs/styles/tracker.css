@@ -20,12 +20,21 @@
 .ctrl-bar {
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 8px;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) 12px 8px;
   background: rgba(12, 12, 16, 0.98);
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* The tracker screen is overflow:hidden, so the menu dropdown is positioned
+   fixed (anchored top-right) instead of absolute, or it would be clipped. */
+.tracker-screen .header-menu {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 52px);
+  right: 10px;
+  left: auto;
 }
 
 .ctrl-undo,

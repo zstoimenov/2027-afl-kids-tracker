@@ -1,4 +1,5 @@
 import { getConfig, teamName } from './config.js';
+import { menuButtonHtml, attachMenu } from './menu.js';
 
 const MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const MONTHS_BG = ['ЯНУ','ФЕВ','МАР','АПР','МАЙ','ЮНИ','ЮЛИ','АВГ','СЕП','ОКТ','НОЕ','ДЕК'];
@@ -276,66 +277,6 @@ function buildCard(round, lang, today, year, storyRounds) {
     </article>`;
 }
 
-/* ---- PWA install instructions ---- */
-
-function showInstallSheet(lang) {
-  const isEn = lang === 'en';
-  const ua   = navigator.userAgent || '';
-  const isIOS     = /iPad|iPhone|iPod/.test(ua) ||
-                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isAndroid = /Android/.test(ua);
-
-  const iosSteps = isEn
-    ? ['Open this page in <strong>Safari</strong>.',
-       'Tap the <strong>Share</strong> button — a square with an upward arrow.',
-       'Scroll down and tap <strong>Add to Home Screen</strong>.',
-       'Tap <strong>Add</strong> — the app icon appears on your home screen.']
-    : ['Отворете тази страница в <strong>Safari</strong>.',
-       'Натиснете бутона <strong>Споделяне</strong> — квадратче със стрелка нагоре.',
-       'Превъртете надолу и изберете <strong>Към началния екран</strong>.',
-       'Натиснете <strong>Добави</strong> — иконата ще се появи на началния екран.'];
-
-  const androidSteps = isEn
-    ? ['Open this page in <strong>Chrome</strong>.',
-       'Tap the <strong>⋮</strong> menu (top-right).',
-       'Tap <strong>Install app</strong> (or <strong>Add to Home screen</strong>).',
-       'Confirm — the app icon appears on your home screen.']
-    : ['Отворете тази страница в <strong>Chrome</strong>.',
-       'Натиснете менюто <strong>⋮</strong> (горе вдясно).',
-       'Изберете <strong>Инсталиране на приложението</strong> (или <strong>Добавяне към началния екран</strong>).',
-       'Потвърдете — иконата ще се появи на началния екран.'];
-
-  const block = (title, steps, primary) => `
-    <div class="install-block${primary ? ' install-block--primary' : ''}">
-      <div class="install-block__title">${title}</div>
-      <ol class="install-steps">${steps.map(s => `<li>${s}</li>`).join('')}</ol>
-    </div>`;
-
-  const iosTitle = 'iPhone / iPad (Safari)';
-  const andTitle = 'Android (Chrome)';
-  const ios = block(iosTitle, iosSteps, isIOS);
-  const and = block(andTitle, androidSteps, isAndroid);
-  // Show the detected platform first; on desktop show both, unhighlighted.
-  const finalBlocks = isAndroid ? and + ios : ios + and;
-
-  const overlay = document.createElement('div');
-  overlay.className = 'sheet-overlay';
-  overlay.innerHTML = `
-    <div class="sheet install-sheet">
-      <div class="sheet-title">${isEn ? 'Install the App' : 'Инсталиране на приложението'}</div>
-      <div class="sheet-hint">${isEn
-        ? 'Add it to your home screen — opens full-screen, works offline.'
-        : 'Добавете я на началния екран — отваря се на цял екран и работи офлайн.'}</div>
-      <div class="install-blocks">${finalBlocks}</div>
-      <button class="sheet-cancel" id="install-close">${isEn ? 'CLOSE' : 'ЗАТВОРИ'}</button>
-    </div>`;
-  document.body.appendChild(overlay);
-
-  const close = () => overlay.remove();
-  overlay.querySelector('#install-close').addEventListener('click', close);
-  overlay.addEventListener('click', e => { if (!e.target.closest('.install-sheet')) close(); });
-}
-
 /* ---- Screen entry point ---- */
 
 export async function renderFixtures(lang) {
@@ -343,28 +284,6 @@ export async function renderFixtures(lang) {
   const isEn  = lang === 'en';
   const today = new Date().toISOString().split('T')[0];
   const club  = teamName(await getConfig());
-
-  // Header menu — only links to pages that exist, per language.
-  const menuItems = isEn
-    ? [
-        { href: '#/en/tracker', label: '📊 Track a Game' },
-        { href: '#/en/reports', label: '🏆 Match Reports' },
-        { href: '#/en',         label: '📅 Fixtures &amp; Results', current: true },
-        { action: 'install',    label: '📲 Install App' },
-        { href: '#/',           label: '🏠 Home' },
-      ]
-    : [
-        { href: '#/bg',          label: '📅 Мачове &amp; Резултати', current: true },
-        { href: '#/bg/seasons',  label: '📖 Истории' },
-        { action: 'install',     label: '📲 Инсталирай приложението' },
-        { href: '#/',            label: '🏠 Начало' },
-      ];
-
-  const menuHtml = menuItems.map(it =>
-    it.action
-      ? `<button class="header-menu__item" data-action="${it.action}">${it.label}</button>`
-      : `<button class="header-menu__item${it.current ? ' header-menu__item--current' : ''}" data-href="${it.href}">${it.label}</button>`
-  ).join('');
 
   app.innerHTML = `
     <div class="screen">
@@ -374,10 +293,7 @@ export async function renderFixtures(lang) {
           <div class="screen-header__club">${club}</div>
           <h1 class="screen-header__title">${isEn ? 'Fixtures &amp; Results' : 'Мачове &amp; Резултати'}</h1>
         </div>
-        <div class="header-menu-wrap">
-          <button class="menu-btn" id="menu-btn" aria-label="${isEn ? 'Menu' : 'Меню'}" aria-expanded="false" aria-haspopup="true">☰</button>
-          <nav class="header-menu" id="header-menu" hidden>${menuHtml}</nav>
-        </div>
+        ${menuButtonHtml(lang, 'fixtures')}
       </header>
 
       <div class="year-bar">
@@ -397,35 +313,7 @@ export async function renderFixtures(lang) {
     window.location.hash = '#/';
   });
 
-  // ---- Header menu ----
-  const menuBtn  = document.getElementById('menu-btn');
-  const menuNav  = document.getElementById('header-menu');
-
-  function closeMenu() {
-    menuNav.hidden = true;
-    menuBtn.setAttribute('aria-expanded', 'false');
-    document.removeEventListener('click', onOutside);
-  }
-  function onOutside(e) {
-    if (!e.target.closest('.header-menu-wrap')) closeMenu();
-  }
-  menuBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    const open = menuNav.hidden;
-    menuNav.hidden = !open;
-    menuBtn.setAttribute('aria-expanded', String(open));
-    if (open) document.addEventListener('click', onOutside);
-    else document.removeEventListener('click', onOutside);
-  });
-  menuNav.querySelectorAll('.header-menu__item').forEach(item => {
-    item.addEventListener('click', () => {
-      const { href, action } = item.dataset;
-      closeMenu();
-      if (action === 'install') { showInstallSheet(lang); return; }
-      // Navigating to the page we're already on won't fire hashchange — just close.
-      if (href !== window.location.hash) window.location.hash = href;
-    });
-  });
+  attachMenu(lang);
 
   let selectedYear  = parseInt(today.slice(0, 4), 10);
   let currentRounds = [];

@@ -1,4 +1,5 @@
 import { getConfig, playerInfo } from './config.js';
+import { menuButtonHtml, attachMenu } from './menu.js';
 
 const BASE_SEASON  = 2026;
 const POSITIONS    = [null, 'def', 'mid', 'fwd'];
@@ -590,7 +591,7 @@ function showSummary() {
         <div class="tracker-header__info">
           <span class="tracker-header__rd">FULL TIME · ${fmtDate(G.date)}</span>
         </div>
-        <div></div>
+        ${menuButtonHtml(_lang, 'tracker')}
       </header>
 
       <div class="summary-scoreline">
@@ -664,6 +665,7 @@ function showSummary() {
     </div>`;
 
   document.getElementById('sum-back').addEventListener('click', () => { window.location.hash = `#/${_lang}`; });
+  attachMenu(_lang);
   document.getElementById('sum-done').addEventListener('click', () => { window.location.hash = `#/${_lang}`; });
   document.getElementById('sum-export').addEventListener('click', () => copyJson('sum-export'));
 
@@ -758,6 +760,7 @@ export async function renderTracker(lang, round) {
           <span class="ctrl-fixture__opp">${oppShort}</span>
         </div>
         <button class="ctrl-undo" id="undo-btn" disabled>↩ UNDO</button>
+        ${menuButtonHtml(lang, 'tracker')}
       </div>
 
       <div class="game-bar">
@@ -808,6 +811,8 @@ export async function renderTracker(lang, round) {
     if (_timerIv) { clearInterval(_timerIv); _timerIv = null; }
     window.location.hash = `#/${lang}`;
   });
+
+  attachMenu(lang);
 
   document.getElementById('undo-btn').addEventListener('click', undoLast);
   document.getElementById('pos-btn').addEventListener('click', cyclePosition);

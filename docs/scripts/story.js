@@ -1,4 +1,5 @@
 import { getConfig, teamName } from './config.js';
+import { menuButtonHtml, attachMenu } from './menu.js';
 
 const BASE_SEASON = 2026;
 
@@ -18,7 +19,7 @@ async function loadSeason(year) {
   return resp.json();
 }
 
-function shell(lang, title, backHash, club = 'Hammond Park Blue') {
+function shell(lang, title, backHash, club = 'Hammond Park Blue', menuKey = '') {
   const isEn = lang === 'en';
   const app  = document.getElementById('app');
   app.innerHTML = `
@@ -29,7 +30,7 @@ function shell(lang, title, backHash, club = 'Hammond Park Blue') {
           <div class="screen-header__club">${club}</div>
           <h1 class="screen-header__title">${title}</h1>
         </div>
-        <div style="width:40px"></div>
+        ${menuButtonHtml(lang, menuKey)}
       </header>
       <div class="story-body" id="story-body">
         <div class="screen-loading">${isEn ? 'Loading…' : 'Зарежда се…'}</div>
@@ -38,6 +39,7 @@ function shell(lang, title, backHash, club = 'Hammond Park Blue') {
   document.getElementById('story-back').addEventListener('click', () => {
     window.location.hash = backHash;
   });
+  attachMenu(lang);
   return document.getElementById('story-body');
 }
 
@@ -46,7 +48,7 @@ function shell(lang, title, backHash, club = 'Hammond Park Blue') {
 export async function renderSeasonPicker(lang) {
   const isEn = lang === 'en';
   const club = teamName(await getConfig());
-  const body = shell(lang, isEn ? 'Stories' : 'Истории', `#/${lang}`, club);
+  const body = shell(lang, isEn ? 'Stories' : 'Истории', `#/${lang}`, club, 'stories');
 
   // Probe which seasons have a story file (auto-discovers future seasons).
   // Always probe at least one season ahead, regardless of the device clock.
@@ -103,7 +105,7 @@ export async function renderSeasonPicker(lang) {
 export async function renderSeasonStory(lang, year) {
   const isEn = lang === 'en';
   const club = teamName(await getConfig());
-  const body = shell(lang, `${isEn ? 'Season' : 'Сезон'} ${year}`, `#/${lang}/seasons`, club);
+  const body = shell(lang, `${isEn ? 'Season' : 'Сезон'} ${year}`, `#/${lang}/seasons`, club, 'stories');
 
   let data;
   try {
@@ -137,7 +139,7 @@ export async function renderSeasonStory(lang, year) {
 export async function renderStory(lang, id, year = BASE_SEASON) {
   const isEn = lang === 'en';
   const club = teamName(await getConfig());
-  const body = shell(lang, isEn ? 'Season Story' : 'Историята на сезона', `#/${lang}`, club);
+  const body = shell(lang, isEn ? 'Season Story' : 'Историята на сезона', `#/${lang}`, club, 'stories');
 
   let data;
   try {
@@ -190,7 +192,7 @@ async function loadGameStory(date) {
 export async function renderReports(lang) {
   const isEn = lang === 'en';
   const club = teamName(await getConfig());
-  const body = shell(lang, isEn ? 'Match Reports' : 'Репортажи', `#/${lang}`, club);
+  const body = shell(lang, isEn ? 'Match Reports' : 'Репортажи', `#/${lang}`, club, 'reports');
 
   const entries = (await loadStoryIndex())
     .slice()
@@ -234,7 +236,7 @@ export async function renderReports(lang) {
 export async function renderReport(lang, date) {
   const isEn = lang === 'en';
   const club = teamName(await getConfig());
-  const body = shell(lang, isEn ? 'Match Report' : 'Репортаж', `#/${lang}/reports`, club);
+  const body = shell(lang, isEn ? 'Match Report' : 'Репортаж', `#/${lang}/reports`, club, 'reports');
 
   const s = await loadGameStory(date);
   const story = isEn ? s?.english : s?.bulgarian;
