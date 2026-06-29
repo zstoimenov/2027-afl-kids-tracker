@@ -309,8 +309,7 @@ function buildCard(round, lang, today, year, storyRounds, storyTitles, gameDates
   const hasStory = storyRounds.has(round.round);
   if (isEn) {
     if (hasGame && (state === 'past' || state === 'today')) {
-      tap = `report:${round.date}`;
-      hint = `Tap for Alek's stats &amp; report`;
+      tap = `report:${round.date}`;   // whole card taps through; no hint label
     } else if (state === 'today' && !hasResult(round)) {
       tap = `tracker:${round.round}`;
       hint = 'Tap to track this game';

@@ -45,9 +45,11 @@ Reports screen lists it.
 
 ## Length & tone
 
-- **Target a 3–5 minute read** for the narrative voices — roughly 500–800
-  words across `commentator` + `coach` combined per language. Rich and
-  specific, never a stat dump.
+- **Keep it short — a quick, exciting read for an 8-year-old.** The
+  `commentator` Play-by-Play is the page Alek opens after a game: **no more than
+  a couple of paragraphs**, two tight and vivid beats a wall of text. `coach`
+  stays brief too. Think a short newspaper clipping, not a feature — rich and
+  specific, never a stat dump, never padded to a word count.
 - `headline` — punchy, one line.
 - `english.commentator` — Fox Footy broadcast energy. Alek should feel like he
   is reading about himself in the paper. Reference specific moments (a goal, a

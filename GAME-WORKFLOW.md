@@ -67,14 +67,20 @@ Write `docs/data/stories/story-YYYY-MM-DD.json` and add the date to
 - Fill **both** `english` and `bulgarian` — all three fields each. (Historical
   2026 files left `bulgarian` empty; new games must not.)
 - `headline` — punchy, one line.
-- `commentator` — Fox Footy broadcast energy (EN) / warm proud-grandparent
-  narrative (BG). Reference specific moments as evidence; name his position; use
-  quarter mood for colour.
+- `commentator` — **the Play-by-Play**. This is the page Alek opens after a
+  game, so write it *for him* — make him feel like the star reading about
+  himself. Fox Footy broadcast energy (EN) / warm proud-grandparent narrative
+  (BG). Reference specific moments as evidence; name his position; use quarter
+  mood for colour.
+  - **Keep it short: no more than a couple of paragraphs.** A young reader
+    won't get through a wall of text. Two tight, vivid paragraphs beat five
+    flat ones. Pick the moments that mattered; leave the rest in the stats.
 - `coach` — coach's-notes tone. Acknowledge what went well, name one or two
   things to work on, driven by `debrief.didWell` / `debrief.workOn`. Warm and
-  constructive — never harsh for a child his age.
-- **Length:** target a 3–5 minute read — roughly 500–800 words across
-  `commentator` + `coach` per language. Rich and specific, never a stat dump.
+  constructive — never harsh for a child his age. Keep it brief too.
+- **Length:** the whole report is a quick, exciting read for an 8-year-old —
+  think a short newspaper clipping, not a feature. Rich and specific, never a
+  stat dump, and never padded to hit a word count.
 
 ### 3. BG season chapter
 

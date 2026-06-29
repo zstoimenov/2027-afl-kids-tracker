@@ -4,6 +4,7 @@ import { renderStory, renderSeasonPicker, renderSeasonStory, renderReports, rend
 import { isUnlocked, renderLock } from './auth.js';
 import { showInstallSheet } from './menu.js';
 import { icon } from './icons.js';
+import { getConfig, teamName } from './config.js';
 
 const LANDING_HTML = document.getElementById('app').innerHTML;
 
@@ -21,6 +22,17 @@ function renderLanding() {
     installBtn.innerHTML = `${icon('install')}<span>Инсталирай приложението</span>`;
     installBtn.addEventListener('click', () => showInstallSheet('bg'));
   }
+  // Team name and season come from season-config.json so they roll over each
+  // year without touching the markup.
+  getConfig().then(cfg => {
+    const title = app.querySelector('.landing__title');
+    const sub   = app.querySelector('.landing__subtitle');
+    if (title) title.textContent = teamName(cfg);
+    if (sub) {
+      const season = cfg && cfg.season ? cfg.season : new Date().getFullYear();
+      sub.textContent = `AFL Junior League · Season ${season}`;
+    }
+  });
 }
 
 // Gate a render behind the side's password (whole EN side / whole BG side).

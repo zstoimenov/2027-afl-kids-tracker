@@ -295,12 +295,15 @@
 
 /* Team name sits in a FIXED-height box (both sides identical) so the scores
    below always line up on the same row, no matter how long either name is.
-   The font-size is shrunk by JS (fitTeamName) until the whole name fits on a
-   single line — long names scale down instead of wrapping or being cut. */
+   The font-size is shrunk by JS (fitTeamName) to keep the name on one line;
+   if it still won't fit at the smallest size, it wraps onto a second line
+   (the box reserves room for two and bottom-aligns) instead of being clipped. */
 .scoreboard__name {
   width: 100%;
-  height: 2.1rem;
-  line-height: 2.1rem;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: flex-end;
+  line-height: 1.05;
   font-size: 1.6rem;            /* starting size; JS shrinks to fit */
   font-weight: 900;
   letter-spacing: 0.01em;
@@ -308,10 +311,11 @@
   color: rgba(255, 255, 255, 0.82);
   white-space: nowrap;
   overflow: hidden;
+  overflow-wrap: anywhere;
   text-align: left;
 }
 
-.scoreboard__side--right .scoreboard__name { text-align: right; }
+.scoreboard__side--right .scoreboard__name { text-align: right; justify-content: flex-end; }
 
 .scoreboard__side--hp .scoreboard__name { color: var(--green-accent); }
 

@@ -90,7 +90,10 @@ body {
 /* ---------------- Landing ---------------- */
 
 .landing {
-  height: 100dvh;
+  /* svh = the *smallest* viewport height, so the page always fits with the
+     mobile address bar showing and never introduces a scroll on refresh. */
+  height: 100svh;
+  min-height: 100svh;
   overflow: hidden;
   padding:
     calc(env(safe-area-inset-top, 0px) + 28px)
@@ -102,9 +105,6 @@ body {
   justify-content: space-between;
   gap: 20px;
 }
-
-/* Flags occupy the centre band between the top title and bottom install button */
-.flags { margin: auto 0; }
 
 .landing__brand {
   text-align: center;

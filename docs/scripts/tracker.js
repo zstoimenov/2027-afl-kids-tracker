@@ -117,6 +117,9 @@ function startTimer() {
   G.timerEndTime = Date.now() + G.timerRemaining * 1000;
   _lastRem = G.timerRemaining;
   saveState();
+  // Teams and home/away are final once the game starts — drop the pre-game row.
+  const pg = document.getElementById('pregame-row');
+  if (pg) pg.remove();
   _timerIv = setInterval(tickTimer, 500);
   updateGameBar();
 }
@@ -236,18 +239,23 @@ function posClass(pos) {
   return pos ? `alek-strip__pos--${pos}` : '';
 }
 
-// Shrink a team-name element's font until the whole name fits on one line, so
-// long names scale down instead of wrapping or getting clipped.
+// Shrink a team-name element's font so the whole name shows. First try to keep
+// it on one line by scaling down; if it still won't fit at the minimum size,
+// let it wrap onto a second line (the box reserves room for two) rather than
+// clipping. Both sides share a fixed box height so the scores stay aligned.
 function fitTeamName(el) {
   if (!el) return;
-  const MAX = 1.6, MIN = 0.72, STEP = 0.04;
+  const MAX = 1.6, MIN = 0.82, STEP = 0.04;
   let size = MAX;
+  el.style.whiteSpace = 'nowrap';
   el.style.fontSize = size + 'rem';
   let guard = 30;
   while (el.scrollWidth > el.clientWidth && size > MIN && guard-- > 0) {
     size -= STEP;
     el.style.fontSize = size + 'rem';
   }
+  // Still too wide even at the smallest size → allow a second line.
+  if (el.scrollWidth > el.clientWidth) el.style.whiteSpace = 'normal';
 }
 
 function fitTeamNames() {
@@ -552,12 +560,10 @@ function endQuarter() {
     return;
   }
 
-  // A player keeps their position into the next quarter unless subbed — carry
-  // it over so play-time and stat attribution stay correct without re-tapping.
-  const carriedPos = G.current.position;
+  // Each quarter starts with no position set — it must be tapped in again so
+  // play-time only accrues once Alek is actually placed on the ground.
   G.quarter++;
   G.current          = freshQ();
-  G.current.position = carriedPos;
   _warned60          = false;
   _lastRem           = null;
   G.timerRemaining   = G.quarterDuration;
