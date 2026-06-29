@@ -2,7 +2,7 @@
 
 Personal AFL stat tracker and storytelling PWA for Hammond Park Hurricanes. Tracks game stats for Alek (#13, Hammond Park Blue), generates Fox Footy-style match reports in English and Bulgarian, and shares them with family. Hosted on GitHub Pages.
 
-- **Live app:** `zstoimenov.github.io/2027-afl-kids-tracker`
+- **Live app:** `zstoimenov.github.io/afl-junior-league`
 - **Stack:** plain ES modules, no bundler, no framework
 - **Audiences:** Zak (stat logger, EN), Alek (report reader, EN), grandparents (BG, view-only)
 
@@ -11,7 +11,7 @@ Personal AFL stat tracker and storytelling PWA for Hammond Park Hurricanes. Trac
 ## Project structure
 
 ```
-2027-afl-kids-tracker/
+afl-junior-league/
 ├── docs/                          # GitHub Pages root (the live PWA)
 │   ├── index.html                 # Two-flag landing page (EN / BG)
 │   ├── manifest.json              # PWA manifest
@@ -69,7 +69,7 @@ Personal AFL stat tracker and storytelling PWA for Hammond Park Hurricanes. Trac
 ## GitHub Pages
 
 - **Source:** Deploy from branch `main`, folder `/docs`
-- **URL:** `zstoimenov.github.io/2027-afl-kids-tracker`
+- **URL:** `zstoimenov.github.io/afl-junior-league`
 
 Enable Pages in **Settings → Pages → Build and deployment → Deploy from a branch**, then select `main` / `/docs`.
 
