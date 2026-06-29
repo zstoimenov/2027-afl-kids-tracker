@@ -44,6 +44,16 @@ const P = {
   install: '<line x1="12" y1="3.5" x2="12" y2="14.5"/><polyline points="7.5,10 12,14.5 16.5,10"/><path d="M4.5 17v1.5a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V17"/>',
   // Season — telemetry bar chart on a baseline
   season:  '<line x1="3" y1="20.5" x2="21" y2="20.5"/><line x1="6.5" y1="20.5" x2="6.5" y2="14.5"/><line x1="11" y1="20.5" x2="11" y2="9.5"/><line x1="15.5" y1="20.5" x2="15.5" y2="5"/><line x1="20" y1="20.5" x2="20" y2="12"/>',
+  // Challenges — a trophy / award cup (menu + Total Footballer)
+  trophy:  '<path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M8 5.5H5.2a2.2 2.2 0 0 0 0 4.4H8.6"/><path d="M16 5.5h2.8a2.2 2.2 0 0 1 0 4.4H15.4"/><line x1="12" y1="12" x2="12" y2="16"/><path d="M8.5 20.5h7"/><path d="M9.5 20.5c0-2 1-3 2.5-3s2.5 1 2.5 3"/>',
+  // Pressure Machine — shield with a downward chevron (lockdown pressure)
+  pressure:'<path d="M12 3l7 2.5v5.5c0 4.4-3 7.6-7 9.5-4-1.9-7-5.1-7-9.5V5.5z"/><polyline points="8.5,11 12,14.5 15.5,11"/>',
+  // Safe Hands — ball cradled in two hands
+  hands:   '<circle cx="12" cy="8.5" r="2.6"/><path d="M4 13c0 4.5 3.6 7.5 8 7.5s8-3 8-7.5"/><line x1="4" y1="13" x2="6.5" y2="11"/><line x1="20" y1="13" x2="17.5" y2="11"/>',
+  // Chain Linker — two interlocking links
+  chain:   '<rect x="3.5" y="9" width="9" height="6" rx="3"/><rect x="11.5" y="9" width="9" height="6" rx="3"/>',
+  // Total Footballer — compass / all-round versatility
+  compass: '<circle cx="12" cy="12" r="8.5"/><polygon points="12,7 14,12 12,17 10,12"/><circle cx="12" cy="12" r="1"/>',
 };
 
 export function icon(name, cls = '') {

@@ -1,6 +1,7 @@
 import { renderFixtures } from './fixtures.js';
 import { renderTracker }  from './tracker.js';
 import { renderStory, renderSeasonPicker, renderSeasonStory, renderReports, renderReport, renderSeasonArc } from './story.js';
+import { renderChallenges } from './challenges.js';
 import { isUnlocked, renderLock } from './auth.js';
 import { showInstallSheet } from './menu.js';
 import { icon } from './icons.js';
@@ -81,6 +82,8 @@ function route() {
     });
     return;
   }
+  if (hash === '/en/challenges') { guard('en', () => renderChallenges('en')); return; }
+  if (hash === '/bg/challenges') { guard('bg', () => renderChallenges('bg')); return; }
   if (hash === '/en/arc') { guard('en', () => renderSeasonArc('en')); return; }
   if (hash === '/bg/arc') { guard('bg', () => renderSeasonArc('bg')); return; }
   if (hash === '/en') { guard('en', () => renderFixtures('en')); return; }

@@ -8,6 +8,7 @@
   --green: #0a3d1f;
   --green-bright: #15803d;
   --green-accent: #22c55e;
+  --gold-accent: #eab308;   /* challenge reward — matches the draw chip */
   --white: #ffffff;
   --ink: #0b0f0c;
   --muted: rgba(255, 255, 255, 0.72);
@@ -393,4 +394,132 @@ body {
 }
 
 .lock-back:active { color: rgba(255, 255, 255, 0.7); }
+
+/* =========================================================
+   Milestones & Challenges — gold reward chips, shared across
+   the results strip, match reports and the dedicated screen.
+   ========================================================= */
+
+.challenge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.challenge-chip .icn { width: 13px; height: 13px; flex-shrink: 0; }
+
+.challenge-chip--gold {
+  color: var(--gold-accent);
+  background: rgba(234, 179, 8, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.34), 0 0 14px rgba(234, 179, 8, 0.18);
+}
+.challenge-chip--grey {
+  color: var(--text-lo);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.10);
+}
+
+.challenge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+/* ---- Results-screen strip (tap → Challenges screen) ---- */
+.challenge-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 0 0 2px;
+  padding: 10px 14px;
+  background: var(--glass);
+  box-shadow: var(--hairline);
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.challenge-strip:active { background: var(--glass-strong); }
+.challenge-strip__label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  flex-shrink: 0;
+}
+.challenge-strip__chips {
+  flex: 1;
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.challenge-strip__chips::-webkit-scrollbar { display: none; }
+.challenge-strip__chips .challenge-row { flex-wrap: nowrap; }
+.challenge-strip__arrow { color: var(--text-lo); display: inline-flex; flex-shrink: 0; }
+.challenge-strip__arrow .icn { width: 16px; height: 16px; }
+
+/* ---- Dedicated Challenges screen ---- */
+.challenges-screen {
+  padding: 16px 18px 40px;
+  max-width: 640px;
+  margin: 0 auto;
+  width: 100%;
+}
+.challenges-screen__intro {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+.challenge-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.challenge-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--glass);
+  box-shadow: var(--hairline);
+}
+.challenge-card--gold {
+  background: rgba(234, 179, 8, 0.07);
+  box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.24);
+}
+.challenge-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.challenge-card__metric {
+  font-size: 0.72rem;
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+.challenge-card__metric strong { color: var(--text-hi); }
+.challenge-card__target { color: var(--text-lo); }
+.challenge-card__pending {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+}
+.challenge-card__how {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-mid);
+}
 

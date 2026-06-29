@@ -1,6 +1,7 @@
 import { getConfig, teamName } from './config.js';
 import { menuButtonHtml, attachMenu } from './menu.js';
 import { icon } from './icons.js';
+import { injectChipStrip } from './challenges.js';
 
 const MONTHS_EN = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 const MONTHS_BG = ['ЯНУ','ФЕВ','МАР','АПР','МАЙ','ЮНИ','ЮЛИ','АВГ','СЕП','ОКТ','НОЕ','ДЕК'];
@@ -351,6 +352,13 @@ export async function renderFixtures(lang) {
         ${menuButtonHtml(lang, 'fixtures')}
       </header>
 
+      <button class="challenge-strip" id="challenge-strip" type="button"
+        aria-label="${isEn ? 'Open challenges' : 'Отвори предизвикателствата'}">
+        <span class="challenge-strip__label">${isEn ? 'Last 3 games' : 'Последни 3 мача'}</span>
+        <div class="challenge-strip__chips" id="challenge-strip-chips"></div>
+        <span class="challenge-strip__arrow">${icon('chevron')}</span>
+      </button>
+
       <div class="year-bar">
         <button class="year-btn year-btn--prev" id="year-prev"
           aria-label="${isEn ? 'Previous season' : 'Предишен сезон'}">${icon('back')}</button>
@@ -366,6 +374,10 @@ export async function renderFixtures(lang) {
 
   document.getElementById('back-btn').addEventListener('click', () => {
     window.location.hash = '#/';
+  });
+
+  document.getElementById('challenge-strip').addEventListener('click', () => {
+    window.location.hash = `#/${lang}/challenges`;
   });
 
   attachMenu(lang);
@@ -398,6 +410,9 @@ export async function renderFixtures(lang) {
     list.innerHTML = `<div class="screen-loading">${isEn ? 'Loading…' : 'Зарежда се…'}</div>`;
     document.getElementById('year-label').textContent = year;
     document.getElementById('year-prev').disabled = year <= BASE_SEASON;
+
+    // Challenge chips reflect the rolling last-3 games of the selected season.
+    injectChipStrip('challenge-strip-chips', lang, year);
 
     try {
       const url  = year === BASE_SEASON ? './data/fixtures.json' : `./data/fixtures-${year}.json`;

@@ -1,6 +1,7 @@
 import { getConfig, teamName, playerInfo } from './config.js';
 import { menuButtonHtml, attachMenu } from './menu.js';
 import { icon } from './icons.js';
+import { loadTrackedGames, evaluateChallenges, chipRowHtml } from './challenges.js';
 
 const BASE_SEASON = 2026;
 
@@ -522,6 +523,20 @@ export async function renderReport(lang, date) {
   const timelineHtml = game ? timelineGraph(game, isEn) : '';
   const positionHtml = game ? positionBlock(game, isEn) : '';
 
+  // Challenges as they stood after this game (rolling last-3 up to this date).
+  let challengeHtml = '';
+  const year = parseInt(String(date).slice(0, 4), 10);
+  if (year) {
+    const games = await loadTrackedGames(year, date);
+    if (games.length) {
+      challengeHtml = `
+        <div class="report-section">
+          <div class="report-section__label">${isEn ? 'Challenges' : 'Предизвикателства'}</div>
+          ${chipRowHtml(evaluateChallenges(games), lang)}
+        </div>`;
+    }
+  }
+
   // Commentator comes from the story file; coach notes use the written story
   // coach if present, otherwise the game's own debrief (didWell / workOn).
   const commentator = story?.commentator;
@@ -556,6 +571,7 @@ export async function renderReport(lang, date) {
     <div class="story-content">
       <div class="report-meta">${round ? `${isEn ? 'Round' : 'Кръг'} ${round} · ` : ''}${date}</div>
       ${statsHtml}
+      ${challengeHtml}
       ${timelineHtml}
       ${positionHtml}
       ${coachHtml}

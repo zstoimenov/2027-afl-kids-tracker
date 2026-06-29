@@ -77,6 +77,8 @@ All icons are inline SVG via `icon(name, cls)` in `scripts/icons.js`. Returns `<
 | `#/bg/report/{date}` | `story.js` | BG match report reader |
 | `#/en/arc` | `story.js` | EN season summary (stats + arc) |
 | `#/bg/arc` | `story.js` | BG season arc (stats + warm narrative) |
+| `#/en/challenges` | `challenges.js` | EN milestones & challenges (gold chips) |
+| `#/bg/challenges` | `challenges.js` | BG milestones & challenges (view-only) |
 
 ### Menu
 
@@ -305,6 +307,29 @@ Structured JSON containing: game metadata, quarter-by-quarter stats and position
 ### Season arc
 
 When writing a season arc, Claude receives all game JSON files and produces a narrative of Alek's development: key moments, milestones, stat trends, in the commentator/coach dual-voice structure.
+
+---
+
+## Milestones & Challenges (`scripts/challenges.js`)
+
+Gold reward chips that reward what Alek can *control* — effort, work-rate,
+versatility — over a **rolling 3-game window**. A chip is **gold** when the
+challenge is currently met across his last 3 (tracked) games, **grey** when not,
+and **pending** ("not tracked yet") when the data needed doesn't exist yet.
+
+- **Thresholds** live in one place: the `THRESHOLDS` constant at the top of
+  `scripts/challenges.js`. Tune them there.
+- **Challenges:** Pressure Machine (avg successful tackles/game), Safe Hands
+  (disposal efficiency), Chain Linker (avg successful disposals/game), Total
+  Footballer (involvement in all three zones + a goal in one recent game —
+  needs the events stream, so it stays pending until games are tracked with it).
+- **Window rule:** effort challenges only count games with `quarters.length > 0`
+  (historical rounds 1–2 never tracked detail stats and must not drag averages).
+- **Placements:** a tappable "Last 3 games" strip atop the EN/BG Fixtures screen,
+  a Challenges section in each match report, and a dedicated screen at
+  `#/en/challenges` / `#/bg/challenges` (menu entry, view-only on BG).
+- Exports reused elsewhere: `chipRowHtml`, `evaluateChallenges`,
+  `loadTrackedGames`, `injectChipStrip`, `renderChallenges`.
 
 ---
 
