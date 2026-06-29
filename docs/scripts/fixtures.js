@@ -99,9 +99,25 @@ async function loadSeasonResults(year) {
   return map;
 }
 
+// For recorded games, the card shows the match-report headline (the "story
+// title") instead of the bare opponent line. Build a date -> headline map.
+async function loadStoryHeadlines(dates, lang) {
+  const map = {};
+  await Promise.all(dates.map(async d => {
+    try {
+      const resp = await fetch(`./data/stories/story-${d}.json`);
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const headline = (lang === 'bg' ? data.bulgarian : data.english)?.headline;
+      if (headline) map[d] = headline;
+    } catch { /* no story for this date */ }
+  }));
+  return map;
+}
+
 /* ---- English card ---- */
 
-function cardEn(round, state) {
+function cardEn(round, state, headline) {
   const opp = opponent(round) || 'TBD';
   const ha  = round.homeAway;
 
@@ -112,6 +128,11 @@ function cardEn(round, state) {
   const todayPill = state === 'today' ? `<span class="today-dot">TODAY</span>` : '';
   const timeStr   = displayTime(round.time, 'en');
 
+  // Recorded games show the match-report headline; otherwise the opponent name.
+  const title = headline
+    ? `<div class="fixture-card__story">${headline}</div>`
+    : `<div class="fixture-card__opponent">${opp}</div>`;
+
   return `
     <div class="fixture-card__top">
       <span class="round-label">RD ${round.round}</span>
@@ -121,7 +142,7 @@ function cardEn(round, state) {
       </div>
       ${haChip}
     </div>
-    <div class="fixture-card__opponent">${opp}</div>
+    ${title}
     <div class="fixture-card__venue">
       <span class="venue-name">${round.ground || 'Venue TBD'}</span>
       ${timeStr ? `<span class="venue-time">${timeStr}</span>` : ''}
@@ -150,7 +171,7 @@ function bgNarrative(round, state) {
     : `Алек ще пътува до ${round.ground || 'гостите'} срещу <strong>${opp}</strong>`;
 }
 
-function cardBg(round, state) {
+function cardBg(round, state, headline) {
   const ha = round.homeAway;
 
   const haChip = ha
@@ -160,16 +181,21 @@ function cardBg(round, state) {
   const todayPill = state === 'today' ? `<span class="today-dot">ДНЕС</span>` : '';
   const timeStr   = displayTime(round.time, 'bg');
 
+  // Recorded games show the match-report headline; otherwise the narrative line.
+  const title = headline
+    ? `<div class="fixture-card__story">${headline}</div>`
+    : `<div class="fixture-card__narrative">${bgNarrative(round, state)}</div>`;
+
   return `
     <div class="fixture-card__top">
-      <span class="round-label">КР ${round.round}</span>
+      <span class="round-label">КРЪГ ${round.round}</span>
       <div class="fixture-card__top-mid">
         <span class="date-label">${fmtDate(round.date, 'bg') || 'ПРЕДСТОИ'}</span>
         ${todayPill}
       </div>
       ${haChip}
     </div>
-    <div class="fixture-card__narrative">${bgNarrative(round, state)}</div>
+    ${title}
     <div class="fixture-card__venue">
       <span class="venue-name">${round.ground || 'Стадионът предстои'}</span>
       ${timeStr ? `<span class="venue-time">${timeStr}</span>` : ''}
@@ -199,7 +225,7 @@ function scoreRow(round, lang, state) {
       : (isEn ? 'DRAW' : 'РАВЕНСТВО');
 
   const chipClass = hpWon ? 'win' : oppWon ? 'loss' : 'draw';
-  const oppName   = (opponent(round) || 'OPP').toUpperCase().substring(0, 11);
+  const oppName   = (opponent(round) || 'OPP').toUpperCase();
 
   // Home team always renders on the LEFT. Total score is dominant; the
   // goals.behinds breakdown is secondary underneath.
@@ -207,7 +233,7 @@ function scoreRow(round, lang, state) {
     ? `<span class="score-team__total score-team__total--none">—</span>`
     : `<span class="score-team__total${isHp ? ' score-team__total--hp' : ''}">${t.score}</span><span class="score-team__gb">${t.goals}.${t.behinds}</span>`;
   const isHome   = round.homeAway === 'home';
-  const hpBlock  = `<span class="score-team__name">HP BLUE</span>${scoreValue(hp, true)}`;
+  const hpBlock  = `<span class="score-team__name score-team__name--hp">Hammond Park Blue</span>${scoreValue(hp, true)}`;
   const oppBlock = `<span class="score-team__name">${oppName}</span>${scoreValue(opp, false)}`;
   const leftBlock  = isHome ? hpBlock : oppBlock;
   const rightBlock = isHome ? oppBlock : hpBlock;
@@ -250,7 +276,7 @@ function prologueShort(title) {
 
 /* ---- Full card ---- */
 
-function buildCard(round, lang, today, year, storyRounds, gameDates) {
+function buildCard(round, lang, today, year, storyRounds, gameDates, headlines) {
   const state   = gameState(round, today);
   const isEn    = lang === 'en';
   const classes = ['fixture-card'];
@@ -260,7 +286,9 @@ function buildCard(round, lang, today, year, storyRounds, gameDates) {
   if (round.homeAway === 'home')      classes.push('fixture-card--home');
   else if (round.homeAway === 'away') classes.push('fixture-card--away');
 
-  const inner = lang === 'bg' ? cardBg(round, state) : cardEn(round, state);
+  // Story headline only once the game is recorded (has a saved game file).
+  const headline = (round.date && gameDates.has(round.date)) ? headlines[round.date] : null;
+  const inner = lang === 'bg' ? cardBg(round, state, headline) : cardEn(round, state, headline);
 
   // Tapping the whole card opens the relevant screen — no buttons.
   let tap = '', hint = '';
@@ -379,8 +407,11 @@ export async function renderFixtures(lang) {
         ? await loadStoryMeta(year)
         : { rounds: new Set(), prologue: null };
 
-      // EN: which dates have a saved game file (→ "Alek's Game" button).
+      // Which dates have a saved game file (→ tappable report / story title).
       const gameDates = new Set(Object.keys(results));
+
+      // Recorded games show the match-report headline as the card title.
+      const headlines = await loadStoryHeadlines([...gameDates], lang);
 
       const prologueHtml = (lang === 'bg' && story.prologue) ? `
         <button class="prologue-card" id="prologue-card" data-year="${year}" type="button">
@@ -391,7 +422,7 @@ export async function renderFixtures(lang) {
           <span class="prologue-card__arrow">${icon('chevron')}</span>
         </button>` : '';
 
-      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds, gameDates)).join('');
+      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds, gameDates, headlines)).join('');
       attachListeners();
 
       const todayCard = list.querySelector('[data-state="today"]');

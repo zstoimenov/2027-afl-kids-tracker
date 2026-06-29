@@ -1,4 +1,4 @@
-# 2027 AFL Kids Tracker - Project Instructions v1.0
+# 2027 AFL Junior League - Project Instructions v1.0
 
 ## Product Vision
 

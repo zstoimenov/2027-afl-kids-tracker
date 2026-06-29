@@ -281,22 +281,23 @@
 }
 
 .fixture-card--past .fixture-card__opponent,
-.fixture-card--past .fixture-card__narrative {
-  color: rgba(255, 255, 255, 0.45);
+.fixture-card--past .fixture-card__narrative,
+.fixture-card--past .fixture-card__story {
+  color: rgba(255, 255, 255, 0.82);
 }
 
 .fixture-card--past .fixture-card__narrative strong {
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .fixture-card--past .round-label,
 .fixture-card--past .date-label {
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .fixture-card--past .venue-name,
 .fixture-card--past .venue-time {
-  color: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* Today: green-lit glass card */
@@ -454,6 +455,15 @@
   color: rgba(255, 255, 255, 0.88);
 }
 
+/* Match-report headline used as the card title for recorded games */
+.fixture-card__story {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: #fff;
+}
+
 .fixture-card__narrative strong {
   color: #fff;
   font-weight: 800;
@@ -515,7 +525,12 @@
   text-transform: uppercase;
   color: var(--text-mid);
   margin-bottom: 3px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
+
+.score-team--right .score-team__name { text-align: right; }
+.score-team__name--hp { color: var(--green-accent); }
 
 /* Total score dominant; goals.behinds secondary underneath */
 .score-team__total {

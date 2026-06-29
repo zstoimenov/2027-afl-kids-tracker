@@ -29,6 +29,10 @@ const P = {
   back:    '<polyline points="15,5 8,12 15,19"/>',
   chevron: '<polyline points="9,5 16,12 9,19"/>',
   undo:    '<polyline points="9,7 4,12 9,17"/><path d="M4 12h9.5a5.5 5.5 0 0 1 5.5 5.5V19"/>',
+  // Swap — two arrows pointing opposite ways (home/away exchange)
+  swap:    '<polyline points="7,4 3,8 7,12"/><line x1="3" y1="8" x2="20" y2="8"/><polyline points="17,12 21,16 17,20"/><line x1="21" y1="16" x2="4" y2="16"/>',
+  // Edit — pencil
+  edit:    '<path d="M14.5 4.5l5 5L8 21l-5 1 1-5z"/><line x1="13" y1="6" x2="18" y2="11"/>',
   menu:    '<line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>',
   close:   '<line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>',
   lock:    '<rect x="5" y="10.5" width="14" height="9.5" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',

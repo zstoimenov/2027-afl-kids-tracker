@@ -1,4 +1,4 @@
-# 2027 AFL Kids Tracker
+# 2027 AFL Junior League
 
 Personal AFL Kids League stat tracker and storytelling platform for Hammond Park Hurricanes. Tracks game stats for Alek (#13, Hammond Park Blue), generates Fox Footy-style match reports and season narratives, and shares them with family in Bulgaria. PWA hosted on GitHub Pages.
 

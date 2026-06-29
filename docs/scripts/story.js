@@ -289,7 +289,7 @@ function statsBlock(game, isEn, player) {
   const hpWon = hp.score > opp.score, oppWon = opp.score > hp.score;
   const result  = hpWon ? (isEn ? 'WIN' : 'ПОБЕДА') : oppWon ? (isEn ? 'LOSS' : 'ЗАГУБА') : (isEn ? 'DRAW' : 'РАВЕНСТВО');
   const chipCls = hpWon ? 'win' : oppWon ? 'loss' : 'draw';
-  const oppName = (game.opponent || 'OPP').toUpperCase().substring(0, 12);
+  const oppName = (game.opponent || 'OPP').toUpperCase();
   const points  = a.points ?? ((sc.goals || 0) * 6 + (sc.behinds || 0));
 
   // Team result is dominant (total score big); goals.behinds is secondary.
@@ -299,7 +299,7 @@ function statsBlock(game, isEn, player) {
       <div class="rscore__score">${t.score || 0}</div>
       <div class="rscore__gb">${t.goals || 0}.${t.behinds || 0}</div>
     </div>`;
-  const hpBlock  = teamBlock('HP BLUE', hp, true);
+  const hpBlock  = teamBlock('Hammond Park Blue', hp, true);
   const oppBlock = teamBlock(oppName, opp, false);
 
   const qbits = qa => {
@@ -513,7 +513,7 @@ export async function renderReport(lang, date) {
 
   const commentaryHtml = commentator ? `
     <div class="report-section">
-      <div class="report-section__label">${isEn ? 'The Call' : 'Репортаж'}</div>
+      <div class="report-section__label">${isEn ? 'The Play-by-Play' : 'Репортаж'}</div>
       <div class="story-text">${paragraphs(commentator)}</div>
     </div>` : '';
 
@@ -521,13 +521,13 @@ export async function renderReport(lang, date) {
   if (story?.coach) {
     coachHtml = `
       <div class="report-section">
-        <div class="report-section__label">${isEn ? "Coach's Notes" : 'Бележки от треньора'}</div>
+        <div class="report-section__label">${isEn ? 'Broadcast Analysis' : 'Бележки от треньора'}</div>
         <div class="story-text">${paragraphs(story.coach)}</div>
       </div>`;
   } else if (debrief.didWell || debrief.workOn) {
     coachHtml = `
       <div class="report-section">
-        <div class="report-section__label">${isEn ? "Coach's Notes" : 'Бележки от треньора'}</div>
+        <div class="report-section__label">${isEn ? 'Broadcast Analysis' : 'Бележки от треньора'}</div>
         ${debrief.didWell ? `<div class="coach-line"><span class="coach-line__tag coach-line__tag--good">${isEn ? 'Did well' : 'Силни страни'}</span><span>${debrief.didWell}</span></div>` : ''}
         ${debrief.workOn ? `<div class="coach-line"><span class="coach-line__tag coach-line__tag--work">${isEn ? 'Work on' : 'За подобрение'}</span><span>${debrief.workOn}</span></div>` : ''}
       </div>`;

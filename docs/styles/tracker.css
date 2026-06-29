@@ -197,11 +197,38 @@
 .scoreboard__run .icn { width: 16px; height: 16px; }
 
 .scoreboard__run--live {
-  background: rgba(34, 197, 94, 0.24);
-  box-shadow: inset 0 0 0 1px var(--green-accent), 0 0 18px rgba(34, 197, 94, 0.28);
+  box-shadow: inset 0 0 0 1px currentColor, 0 0 18px rgba(0, 0, 0, 0.25);
+}
+
+/* Colour-coded run states: green = ready to start, red = running, yellow = paused */
+.scoreboard__run--start {
+  background: rgba(34, 197, 94, 0.16);
+  color: var(--green-accent);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.4), var(--edge-top);
+}
+.scoreboard__run--running {
+  background: rgba(239, 68, 68, 0.20);
+  color: #ff6b6b;
+  box-shadow: inset 0 0 0 1px #ff6b6b, 0 0 18px rgba(239, 68, 68, 0.30);
+}
+.scoreboard__run--paused {
+  background: rgba(234, 179, 8, 0.18);
+  color: #facc15;
+  box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.55), var(--edge-top);
 }
 
 .scoreboard__run:active { transform: translateY(1px) scale(0.97); box-shadow: var(--press); }
+
+/* One-minute warning pulse on the clock */
+.scoreboard__clock--warn {
+  color: #facc15;
+  animation: clockWarn 0.6s ease-in-out 0s 6 alternate;
+}
+
+@keyframes clockWarn {
+  from { opacity: 1; }
+  to   { opacity: 0.4; }
+}
 
 /* Teams row — fills the remaining height, scores dominate */
 .scoreboard__teams {
@@ -267,17 +294,22 @@
 }
 
 .scoreboard__name {
-  font-size: clamp(0.92rem, 4.2vw, 1.18rem);
+  font-size: clamp(1.32rem, 6.2vw, 1.75rem);
   font-weight: 900;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.82);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   max-width: 100%;
-  line-height: 1.05;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  /* Wrap onto a second line when too long, never truncate */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
+
+.scoreboard__side--right .scoreboard__name { text-align: right; }
 
 .scoreboard__side--hp .scoreboard__name { color: var(--green-accent); }
 
@@ -311,12 +343,18 @@
 }
 
 .scoreboard__pts {
-  font-size: clamp(3.4rem, 15vw, 6rem);
+  font-size: clamp(5rem, 18vw, 9rem);
   font-weight: 900;
   letter-spacing: -0.04em;
-  line-height: 1;
+  line-height: 0.95;
   color: #fff;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Triple-digit scores: step down so 100+ is never clipped */
+.scoreboard__pts--big {
+  font-size: clamp(3.2rem, 12vw, 5.5rem);
 }
 
 .scoreboard__side--hp .scoreboard__pts    { color: var(--green-accent); }
@@ -330,24 +368,79 @@
   line-height: 1;
 }
 
+.scoreboard__centre {
+  flex-shrink: 0;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0 4px;
+}
+
 .scoreboard__div {
   font-size: clamp(2.5rem, 10vw, 4.5rem);
   font-weight: 200;
   color: rgba(255, 255, 255, 0.15);
-  flex-shrink: 0;
-  padding: 0 4px;
-  align-self: center;
   line-height: 1;
 }
+
+/* Live lead margin — fills the centre dead space with useful info */
+.scoreboard__lead {
+  min-height: 1.1em;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.scoreboard__lead--hp  { color: var(--green-accent); }
+.scoreboard__lead--opp { color: #ff6b6b; }
+
+/* Pre-game controls row (opponent name / swap sides) */
+.scoreboard__pregame {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pregame-btn {
+  appearance: none;
+  background: var(--glass);
+  border: none;
+  border-radius: 11px;
+  color: var(--text-mid);
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 8px;
+  cursor: pointer;
+  box-shadow: var(--hairline), var(--edge-top);
+  transition: transform var(--t), box-shadow var(--t), color var(--t);
+}
+
+.pregame-btn .icn { width: 16px; height: 16px; color: var(--green-accent); }
+.pregame-btn:active { transform: translateY(1px) scale(0.98); color: var(--text-hi); box-shadow: var(--press); }
 
 /* ---- Alek strip — card style ---- */
 
 .alek-strip {
   flex-shrink: 0;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   padding: 9px 16px;
   margin: 0 10px;
   background: linear-gradient(180deg, rgba(34, 197, 94, 0.10), rgba(34, 197, 94, 0.03)), var(--glass);
@@ -355,6 +448,16 @@
   backdrop-filter: var(--blur);
   box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.28), var(--edge-top), var(--lift-sm);
   border-radius: 13px;
+}
+
+/* Identity column: name on top, stats underneath (so a long stat line never
+   collides with the player tag or gets truncated) */
+.alek-strip__id {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
 }
 
 .alek-strip__name {
@@ -367,7 +470,6 @@
   text-transform: uppercase;
   color: var(--text-hi);
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .alek-strip__star { width: 15px; height: 15px; color: var(--green-accent); }
@@ -376,23 +478,38 @@
   appearance: none;
   background: var(--glass);
   border: none;
-  border-radius: 9px;
+  border-radius: 10px;
   color: var(--text-mid);
   font-family: inherit;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  padding: 6px 11px;
   cursor: pointer;
-  min-width: 46px;
-  min-height: 34px;
-  text-align: center;
+  min-width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 12px;
   flex-shrink: 0;
   box-shadow: var(--hairline);
   transition: transform var(--t), color var(--t), box-shadow var(--t);
 }
 
+.alek-strip__pos-cap {
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+}
+
+.alek-strip__pos-lbl {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
 .alek-strip__pos:active { transform: translateY(1px) scale(0.96); color: var(--green-accent); box-shadow: var(--press); }
+.alek-strip__pos:active .alek-strip__pos-cap { color: inherit; }
 
 /* While cycling through positions to reach the one you want — not yet logged. */
 .alek-strip__pos--settling {
@@ -411,12 +528,9 @@
   font-weight: 700;
   color: var(--green-accent);
   letter-spacing: 0.01em;
-  text-align: right;
-  flex: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  text-align: left;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
   font-variant-numeric: tabular-nums;
 }
 

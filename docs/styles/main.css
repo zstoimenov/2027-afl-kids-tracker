@@ -1,5 +1,5 @@
 /* =========================================================
-   2027 AFL Kids Tracker — base styles (PWA shell)
+   2027 AFL Junior League — base styles (PWA shell)
    Aesthetic: Fox Footy broadcast overlay. Green / white,
    bold typography, mobile-first, one-handed outdoor use.
    ========================================================= */
@@ -90,17 +90,21 @@ body {
 /* ---------------- Landing ---------------- */
 
 .landing {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   padding:
-    calc(env(safe-area-inset-top, 0px) + 40px)
+    calc(env(safe-area-inset-top, 0px) + 28px)
     24px
-    calc(env(safe-area-inset-bottom, 0px) + 28px);
+    calc(env(safe-area-inset-bottom, 0px) + 24px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 40px;
+  justify-content: space-between;
+  gap: 20px;
 }
+
+/* Flags occupy the centre band between the top title and bottom install button */
+.flags { margin: auto 0; }
 
 .landing__brand {
   text-align: center;

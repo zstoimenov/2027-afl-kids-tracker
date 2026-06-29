@@ -192,7 +192,7 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.report-headline { margin-top: 22px; }
+.report-headline { margin-top: 40px; }
 
 .coach-line {
   display: flex;
@@ -253,10 +253,11 @@
   text-transform: uppercase;
   color: var(--text-mid);
   margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
+
+.rscore__team--hp .rscore__name { color: var(--green-accent); }
 
 /* Total score dominant; goals.behinds secondary */
 .rscore__score {

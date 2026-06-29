@@ -12,6 +12,7 @@ const MONTHS       = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT
 let G         = null;
 let _lang     = 'en';
 let _timerIv  = null;
+let _warned60 = false;   // fired the "1 minute left" buzz for the current quarter?
 
 // Position cycling is debounced: while you tap through MID/FWD/— to reach the
 // position you want, nothing is logged. Only the settled value is recorded,
@@ -110,6 +111,7 @@ function startTimer() {
   if (_timerIv) clearInterval(_timerIv);
   G.gameStarted  = true;
   G.status       = 'running';
+  if (G.timerRemaining > 60) _warned60 = false;   // re-arm the 1-min buzz
   G.timerEndTime = Date.now() + G.timerRemaining * 1000;
   saveState();
   _timerIv = setInterval(tickTimer, 500);
@@ -128,6 +130,16 @@ function tickTimer() {
   if (!G.timerEndTime) return;
   G.timerRemaining = Math.max(0, (G.timerEndTime - Date.now()) / 1000);
   setTxt('timer-display', fmtTimer(G.timerRemaining));
+  // One minute to go — buzz once so you can look up without watching the clock.
+  if (!_warned60 && G.timerRemaining > 0 && G.timerRemaining <= 60) {
+    _warned60 = true;
+    vibe([120, 60, 120]);
+    const el = document.getElementById('timer-display');
+    if (el) {
+      el.classList.add('scoreboard__clock--warn');
+      setTimeout(() => el.classList.remove('scoreboard__clock--warn'), 4000);
+    }
+  }
   if (G.timerRemaining <= 0) {
     clearInterval(_timerIv); _timerIv = null;
     G.status = 'paused'; G.timerEndTime = null;
@@ -150,10 +162,27 @@ function resumeTimerIfNeeded() {
 /* ---- DOM updates ---- */
 
 function updateScore() {
-  setTxt('hp-pts',  calcTotal(G.score.hp));
+  const hpT  = calcTotal(G.score.hp);
+  const oppT = calcTotal(G.score.opp);
+  setTxt('hp-pts',  hpT);
   setTxt('hp-gb',   fmtGB(G.score.hp));
-  setTxt('opp-pts', calcTotal(G.score.opp));
+  setTxt('opp-pts', oppT);
   setTxt('opp-gb',  fmtGB(G.score.opp));
+
+  // Shrink the score type a notch once a side reaches triple digits so 100+
+  // never gets clipped.
+  const big = hpT >= 100 || oppT >= 100;
+  document.querySelectorAll('.scoreboard__pts').forEach(el =>
+    el.classList.toggle('scoreboard__pts--big', big));
+
+  // Live lead margin in the centre column (fills the old dead space).
+  const lead = document.getElementById('lead-chip');
+  if (lead) {
+    const m = hpT - oppT;
+    if (m === 0) { lead.textContent = G.gameStarted ? 'LEVEL' : ''; lead.className = 'scoreboard__lead'; }
+    else if (m > 0) { lead.textContent = `HP +${m}`;  lead.className = 'scoreboard__lead scoreboard__lead--hp'; }
+    else            { lead.textContent = `OPP +${-m}`; lead.className = 'scoreboard__lead scoreboard__lead--opp'; }
+  }
 }
 
 function updateAlekStrip() {
@@ -181,6 +210,14 @@ function runBtnInner() {
   return `${icon('play')}<span>PAUSED</span>`;
 }
 
+// Colour state for the run button: green before start, red while running,
+// yellow while paused (clear at-a-glance status on a sunny sideline).
+function runBtnState() {
+  if (!G.gameStarted)         return 'start';
+  if (G.status === 'running') return 'running';
+  return 'paused';
+}
+
 function updateGameBar() {
   setTxt('q-label',       G.quarter > 4 ? 'FT' : `Q${G.quarter}`);
   setTxt('pos-label',     POS_LBL[String(G.current.position)] ?? '—');
@@ -189,7 +226,11 @@ function updateGameBar() {
   const runBtn = document.getElementById('run-btn');
   if (runBtn) {
     runBtn.innerHTML = runBtnInner();
+    const st = runBtnState();
     runBtn.classList.toggle('scoreboard__run--live', G.status === 'running');
+    runBtn.classList.toggle('scoreboard__run--start',   st === 'start');
+    runBtn.classList.toggle('scoreboard__run--running', st === 'running');
+    runBtn.classList.toggle('scoreboard__run--paused',  st === 'paused');
   }
 
   const timerEl = document.getElementById('timer-display');
@@ -371,7 +412,7 @@ function openTimerEdit() {
       <div class="sheet-title">QUARTER DURATION</div>
       <div class="sheet-hint">Locked once the game starts</div>
       <div class="timer-presets">
-        ${[10, 12, 15, 20].map(m => `
+        ${[15, 20, 25, 30].map(m => `
           <button class="timer-preset${m === cur ? ' timer-preset--active' : ''}" data-min="${m}">
             ${m}<span class="timer-preset__unit">min</span>
           </button>`).join('')}
@@ -452,6 +493,7 @@ function endQuarter() {
 
   G.quarter++;
   G.current        = freshQ();
+  _warned60        = false;
   G.timerRemaining = G.quarterDuration;
   G.status         = 'paused';
   G.timerEndTime   = null;
@@ -685,12 +727,12 @@ function showSummary() {
   const hpWon = hpT > oppT, oppWon = oppT > hpT;
   const result  = hpWon ? 'WIN' : oppWon ? 'LOSS' : 'DRAW';
   const chipCls = hpWon ? 'win' : oppWon ? 'loss' : 'draw';
-  const oppName = (G.opponent || 'Opponent').toUpperCase().substring(0, 11);
+  const oppName = (G.opponent || 'Opponent').toUpperCase();
 
   // Home team always renders on the LEFT.
   const isHome  = G.homeAway === 'home';
   const hpTeam  = `
-    <div class="summary-team__name summary-team__name--hp">HP BLUE</div>
+    <div class="summary-team__name summary-team__name--hp">Hammond Park Blue</div>
     <div class="summary-team__total summary-team__total--hp">${hpT}</div>
     <div class="summary-team__gb">${hp.goals}.${hp.behinds}</div>`;
   const oppTeam = `
@@ -860,14 +902,14 @@ export async function renderTracker(lang, round) {
   const isHome   = G.homeAway === 'home';
   const hpHA     = isHome ? 'HOME' : 'AWAY';
   const oppHA    = isHome ? 'AWAY' : 'HOME';
-  const oppShort = (G.opponent || 'Opponent').toUpperCase().substring(0, 10);
+  const oppName  = (G.opponent || 'Opponent').toUpperCase();
   const rdLabel  = G.round ? `RD ${G.round} · ${hpHA}` : 'GAME';
 
   // Home team always renders on the LEFT, away team on the RIGHT.
   const hpSide = `
     <div class="scoreboard__side scoreboard__side--hp scoreboard__side--${isHome ? 'left' : 'right'}">
       <div class="scoreboard__ha">${hpHA}</div>
-      <div class="scoreboard__name">HP BLUE</div>
+      <div class="scoreboard__name">Hammond Park Blue</div>
       <button class="scoreboard__btn scoreboard__btn--hp" id="score-hp-btn">
         <div class="scoreboard__pts" id="hp-pts">${calcTotal(G.score.hp)}</div>
         <div class="scoreboard__gb"  id="hp-gb">${fmtGB(G.score.hp)}</div>
@@ -877,7 +919,7 @@ export async function renderTracker(lang, round) {
   const oppSide = `
     <div class="scoreboard__side scoreboard__side--opp scoreboard__side--${isHome ? 'right' : 'left'}">
       <div class="scoreboard__ha">${oppHA}</div>
-      <div class="scoreboard__name">${oppShort}</div>
+      <div class="scoreboard__name" id="opp-name">${oppName}</div>
       <button class="scoreboard__btn" id="score-opp-btn">
         <div class="scoreboard__pts" id="opp-pts">${calcTotal(G.score.opp)}</div>
         <div class="scoreboard__gb"  id="opp-gb">${fmtGB(G.score.opp)}</div>
@@ -886,6 +928,21 @@ export async function renderTracker(lang, round) {
     </div>`;
   const leftSide  = isHome ? hpSide : oppSide;
   const rightSide = isHome ? oppSide : hpSide;
+
+  // Centre column: divider, live lead margin, and (pre-game) the team controls.
+  const centreCol = `
+    <div class="scoreboard__centre">
+      <div class="scoreboard__div">:</div>
+      <div class="scoreboard__lead" id="lead-chip"></div>
+    </div>`;
+
+  // Pre-game only: rename the opponent and swap which side is home. Once the
+  // game starts the teams and score are final, so the row disappears.
+  const pregameRow = G.gameStarted ? '' : `
+    <div class="scoreboard__pregame" id="pregame-row">
+      <button class="pregame-btn" id="edit-opp-btn" type="button">${icon('edit')}<span>Opponent name</span></button>
+      <button class="pregame-btn" id="swap-btn" type="button">${icon('swap')}<span>Swap home / away</span></button>
+    </div>`;
 
   app.innerHTML = `
     <div class="screen tracker-screen tracker-screen--${isHome ? 'home' : 'away'}">
@@ -904,21 +961,25 @@ export async function renderTracker(lang, round) {
         <div class="scoreboard__top">
           <button class="scoreboard__q" id="q-label">Q${G.quarter}</button>
           <div class="scoreboard__clock${!G.gameStarted ? ' scoreboard__clock--edit' : ''}" id="timer-display">${fmtTimer(G.timerRemaining)}</div>
-          <button class="scoreboard__run${G.status === 'running' ? ' scoreboard__run--live' : ''}" id="run-btn">
+          <button class="scoreboard__run scoreboard__run--${runBtnState()}${G.status === 'running' ? ' scoreboard__run--live' : ''}" id="run-btn">
             ${runBtnInner()}
           </button>
         </div>
         <div class="scoreboard__teams">
           ${leftSide}
-          <div class="scoreboard__div">:</div>
+          ${centreCol}
           ${rightSide}
         </div>
+        ${pregameRow}
       </section>
 
       <div class="alek-strip">
-        <span class="alek-strip__name">${icon('star', 'alek-strip__star')} #${_player.number}</span>
-        <span class="alek-strip__stats" id="alek-stats">—</span>
+        <div class="alek-strip__id">
+          <span class="alek-strip__name">${icon('star', 'alek-strip__star')} #${_player.number}</span>
+          <span class="alek-strip__stats" id="alek-stats">—</span>
+        </div>
         <button class="alek-strip__pos" id="pos-btn" aria-label="Position — tap to change">
+          <span class="alek-strip__pos-cap">POS</span>
           <span class="alek-strip__pos-lbl" id="pos-label">${POS_LBL[String(G.current.position)] ?? '—'}</span>
         </button>
       </div>
@@ -965,6 +1026,27 @@ export async function renderTracker(lang, round) {
 
   document.getElementById('timer-display').addEventListener('click', () => {
     if (!G.gameStarted) openTimerEdit();
+  });
+
+  // Pre-game controls: rename the opponent, swap home/away. Hidden once the
+  // game starts (the markup row is only rendered while !gameStarted, and the
+  // teams/score are final from then on).
+  const editOppBtn = document.getElementById('edit-opp-btn');
+  if (editOppBtn) editOppBtn.addEventListener('click', () => {
+    if (G.gameStarted) return;
+    const name = prompt('Opposition team name', G.opponent || '');
+    if (name && name.trim()) {
+      G.opponent = name.trim();
+      saveState();
+      renderTracker(lang, round);
+    }
+  });
+  const swapBtn = document.getElementById('swap-btn');
+  if (swapBtn) swapBtn.addEventListener('click', () => {
+    if (G.gameStarted) return;
+    G.homeAway = G.homeAway === 'home' ? 'away' : 'home';
+    saveState();
+    renderTracker(lang, round);
   });
 
   attachLongPress(document.getElementById('q-label'), openQuarterNotes);
