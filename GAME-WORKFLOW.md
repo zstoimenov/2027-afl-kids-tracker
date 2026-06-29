@@ -115,15 +115,55 @@ narrative include the new game.
 - **No templates.** Each story fresh and specific; vary the structure and the
   opening every week.
 - **Stay true to the JSON.** Invent atmosphere, not events or numbers.
-- **Established colour:** #13, the orange boots, Frankland Park (home ground).
-- **Age** — compute from `season-config.json`: `season − player.birthYear`
-  (2026 → 8, 2027 → 9, …). Never hardcode it.
-- **Kit colours** — every Hammond Park team plays the **club** colours:
-  **green/white at home, white/green away**. The team is *Hammond Park Blue*
-  (BG: *Сините* / "the Blues") but does **not** wear blue. Keep the name; never
-  dress them in blue. The orange boots are Alek's, not the kit.
 - **Don't regenerate** existing stories unless explicitly asked — only add the
   new game (the season arc is the one file you rewrite each time, by design).
+
+### Single source of truth — never hardcode facts that can change
+
+Every season-specific fact lives in **`docs/data/season-config.json`**. Read it
+each time and use those values; do not bake last season's facts into a story,
+because they will quietly go stale when they change. In particular:
+
+| Fact | Where to read it | Note |
+|---|---|---|
+| Player name / number | `player.name`, `player.number` | Number may change season to season. |
+| Age | `season − player.birthYear` | Compute it; never write a literal age. |
+| Boot colour | `player.shoeColour` | Currently orange — but read it, don't assume. |
+| Team name | `team` (and `seasonTeamName` if set) | e.g. *Hammond Park Blue* / *The Blues*. |
+| Club | `club` | Hammond Park Hurricanes. |
+| Home ground | `homeGround` | |
+| Kit colours | `colours.home` / `colours.away` | **green/white home, white/green away.** |
+
+Kit nuance to preserve: the team is named *Hammond Park Blue* (BG: *Сините* /
+"the Blues") but plays in the **club** colours from `colours`, **not** blue.
+Keep the name; never dress them in blue. The boots are the player's, not the kit.
+
+If a fact you want isn't in `season-config.json`, treat the JSON game/fixture
+data as the source — still don't invent or hardcode.
+
+### Substitution & play time
+
+The game JSON carries on-field time: `playSeconds` per quarter and in
+`totals.aleksStats`. A quarter where the player was subbed off shows less time.
+**Use this as context for the stats** — e.g. a strong tackle count in a short
+stint is more impressive than across a full quarter. Mention time on field or a
+substitution only when it genuinely shapes the read; never as a raw number dump.
+
+### Broadcast Analysis (coach notes) — the most important guardrail
+
+The `debrief.didWell` / `debrief.workOn` notes are the parent's, jotted quickly
+on the sideline. They are **raw input, not copy**:
+
+- **Rewrite, never quote.** Produce *your own* version — do not paste or lightly
+  reword the parent's text.
+- **Write it for the child to act on.** The reader is a young player. Frame it so
+  he understands *what* to do next time and *why* it helps — concrete, doable tips.
+- **Grounded, not a hype piece and not criticism.** Don't crown him a star and
+  don't scold. Acknowledge a genuine strength, then give one or two specific
+  things to work on, kindly. The goal is a kid who finishes reading wanting to
+  improve, still feeling good about his game.
+- Tie advice to the evidence (position, play time, a stat trend) so it lands as
+  fair and specific, not generic.
 
 ---
 

@@ -438,9 +438,12 @@ export async function renderFixtures(lang) {
       list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds, story.titles, gameDates, headlines)).join('');
       attachListeners();
 
-      const todayCard = list.querySelector('[data-state="today"]');
-      if (todayCard) requestAnimationFrame(() =>
-        todayCard.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+      // On open, jump to today's game if there is one, otherwise the most
+      // recent played round (the latest result), so the newest action is in view.
+      const focusCard = list.querySelector('[data-state="today"]')
+        || [...list.querySelectorAll('[data-state="past"]')].pop();
+      if (focusCard) requestAnimationFrame(() =>
+        focusCard.scrollIntoView({ behavior: 'smooth', block: 'center' }));
 
     } catch (err) {
       if (err.status === 404) {

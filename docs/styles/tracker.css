@@ -293,20 +293,22 @@
   opacity: 0.85;
 }
 
+/* Team name sits in a FIXED-height box (both sides identical) so the scores
+   below always line up on the same row, no matter how long either name is.
+   The font-size is shrunk by JS (fitTeamName) until the whole name fits on a
+   single line — long names scale down instead of wrapping or being cut. */
 .scoreboard__name {
-  font-size: clamp(1.32rem, 6.2vw, 1.75rem);
+  width: 100%;
+  height: 2.1rem;
+  line-height: 2.1rem;
+  font-size: 1.6rem;            /* starting size; JS shrinks to fit */
   font-weight: 900;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.82);
-  max-width: 100%;
-  line-height: 1.08;
-  overflow-wrap: anywhere;
-  /* Wrap onto a second line when too long, never truncate */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  white-space: nowrap;
   overflow: hidden;
+  text-align: left;
 }
 
 .scoreboard__side--right .scoreboard__name { text-align: right; }
@@ -474,6 +476,31 @@
 
 .alek-strip__star { width: 15px; height: 15px; color: var(--green-accent); }
 
+/* On-field time for the current quarter (context for the stats). */
+.alek-strip__time-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.alek-strip__time-cap {
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-lo);
+}
+.alek-strip__time {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--text-hi);
+  font-variant-numeric: tabular-nums;
+}
+.alek-strip__time--bench { color: #facc15; }
+
 .alek-strip__pos {
   appearance: none;
   background: var(--glass);
@@ -507,6 +534,27 @@
   font-weight: 800;
   letter-spacing: 0.06em;
 }
+
+/* Position-coded colours: grey (default) when unset, then DEF blue / MID
+   yellow / FWD red. The label inherits the button colour. */
+.alek-strip__pos--def {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(96, 165, 250, 0.5);
+}
+.alek-strip__pos--mid {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.5);
+}
+.alek-strip__pos--fwd {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.13);
+  box-shadow: inset 0 0 0 1px rgba(255, 107, 107, 0.5);
+}
+.alek-strip__pos--def .alek-strip__pos-cap,
+.alek-strip__pos--mid .alek-strip__pos-cap,
+.alek-strip__pos--fwd .alek-strip__pos-cap { color: inherit; opacity: 0.7; }
 
 .alek-strip__pos:active { transform: translateY(1px) scale(0.96); color: var(--green-accent); box-shadow: var(--press); }
 .alek-strip__pos:active .alek-strip__pos-cap { color: inherit; }
@@ -966,6 +1014,19 @@
   letter-spacing: 0.07em;
   min-width: 28px;
 }
+
+.summary-q__time {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+}
+.summary-q__time-ic { width: 9px; height: 9px; opacity: 0.7; }
 
 .summary-q__stats {
   font-size: 0.75rem;

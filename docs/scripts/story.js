@@ -269,6 +269,11 @@ function xy(o) {
   return `${o?.successful || 0}<span class="rstat__den">/${att}</span>`;
 }
 
+function fmtMMSS(sec) {
+  const s = Math.max(0, Math.round(sec || 0));
+  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+}
+
 function statTile(ic, value, label, sub) {
   return `
     <div class="rstat">
@@ -314,13 +319,21 @@ function statsBlock(game, isEn, player) {
     ].filter(Boolean).join(' · ') || '—';
   };
 
+  // Play time is present on games tracked with the events stream; historical
+  // games omit it, so the column simply doesn't render.
+  const hasPlay = (game.quarters || []).some(q => q.playSeconds != null);
   const quarters = (game.quarters || []).map(q => `
       <div class="rquarter">
         <span class="rquarter__q">Q${q.quarter}</span>
         <span class="rquarter__mood">${q.mood ? icon(MOOD_ICON[q.mood]) : ''}</span>
         <span class="rquarter__pos">${POS_LBL_S[q.position] || ''}</span>
+        ${hasPlay ? `<span class="rquarter__time">${fmtMMSS(q.playSeconds)}</span>` : ''}
         <span class="rquarter__stats">${qbits(q.aleksStats || {})}</span>
       </div>`).join('');
+
+  const playTotal = a.playSeconds != null
+    ? a.playSeconds
+    : (hasPlay ? (game.quarters || []).reduce((s, q) => s + (q.playSeconds || 0), 0) : null);
 
   const shotAcc = sc.goalAttempts ? `${Math.round((sc.goals || 0) / sc.goalAttempts * 100)}% ${isEn ? 'acc' : 'точ'}` : '';
 
@@ -346,6 +359,12 @@ function statsBlock(game, isEn, player) {
       <span class="rpoints__label">${isEn ? 'Total points' : 'Общо точки'}</span>
       <span class="rpoints__val">${points}</span>
     </div>
+
+    ${playTotal != null ? `
+    <div class="rpoints rpoints--time">
+      <span class="rpoints__label">${isEn ? 'Time on field' : 'Време на терена'}</span>
+      <span class="rpoints__val">${fmtMMSS(playTotal)}</span>
+    </div>` : ''}
 
     ${quarters ? `
     <div class="report-section">

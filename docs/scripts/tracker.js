@@ -13,6 +13,7 @@ let G         = null;
 let _lang     = 'en';
 let _timerIv  = null;
 let _warned60 = false;   // fired the "1 minute left" buzz for the current quarter?
+let _lastRem  = null;    // previous tick's timerRemaining, for play-time accrual
 
 // Position cycling is debounced: while you tap through MID/FWD/— to reach the
 // position you want, nothing is logged. Only the settled value is recorded,
@@ -53,6 +54,7 @@ function fmtDate(d) {
 function freshQ() {
   return {
     position: null, mood: null, notes: '',
+    playSeconds: 0,   // on-field time this quarter (clock running & not benched)
     stats: {
       disposals: 0, disposalsOk: 0,
       tackles:   0, tacklesOk:   0,
@@ -113,6 +115,7 @@ function startTimer() {
   G.status       = 'running';
   if (G.timerRemaining > 60) _warned60 = false;   // re-arm the 1-min buzz
   G.timerEndTime = Date.now() + G.timerRemaining * 1000;
+  _lastRem = G.timerRemaining;
   saveState();
   _timerIv = setInterval(tickTimer, 500);
   updateGameBar();
@@ -122,6 +125,7 @@ function pauseTimer() {
   if (_timerIv) { clearInterval(_timerIv); _timerIv = null; }
   G.status      = 'paused';
   G.timerEndTime = null;
+  _lastRem      = null;
   saveState();
   updateGameBar();
 }
@@ -129,6 +133,18 @@ function pauseTimer() {
 function tickTimer() {
   if (!G.timerEndTime) return;
   G.timerRemaining = Math.max(0, (G.timerEndTime - Date.now()) / 1000);
+
+  // Accrue on-field time: count the elapsed slice only while Alek is on a
+  // position (not benched). Bench = position null = a substitution off.
+  if (_lastRem != null) {
+    const slice = _lastRem - G.timerRemaining;
+    if (slice > 0 && G.current.position != null) {
+      G.current.playSeconds = (G.current.playSeconds || 0) + slice;
+      updatePlayTime();
+    }
+  }
+  _lastRem = G.timerRemaining;
+
   setTxt('timer-display', fmtTimer(G.timerRemaining));
   // One minute to go — buzz once so you can look up without watching the clock.
   if (!_warned60 && G.timerRemaining > 0 && G.timerRemaining <= 60) {
@@ -142,7 +158,7 @@ function tickTimer() {
   }
   if (G.timerRemaining <= 0) {
     clearInterval(_timerIv); _timerIv = null;
-    G.status = 'paused'; G.timerEndTime = null;
+    G.status = 'paused'; G.timerEndTime = null; _lastRem = null;
     saveState(); updateGameBar();
     vibe([60, 40, 60, 40, 120]);
   }
@@ -152,6 +168,7 @@ function resumeTimerIfNeeded() {
   if (G.status === 'running' && G.timerEndTime) {
     G.timerRemaining = Math.max(0, (G.timerEndTime - Date.now()) / 1000);
     if (G.timerRemaining > 0) {
+      _lastRem = G.timerRemaining;
       _timerIv = setInterval(tickTimer, 500);
     } else {
       G.status = 'paused'; G.timerRemaining = 0; G.timerEndTime = null;
@@ -204,6 +221,39 @@ function updateStatBtns() {
   setTxt('val-mark',     `${s.marksOk}/${s.marks}`);
 }
 
+// Live on-field time for the current quarter, shown in the player strip. When
+// Alek is benched (no position) it shows BENCH so the substitution is visible.
+function updatePlayTime() {
+  const el = document.getElementById('play-time');
+  if (!el) return;
+  const benched = G.current.position == null;
+  el.textContent = benched ? 'BENCH' : fmtTimer(G.current.playSeconds || 0);
+  el.classList.toggle('alek-strip__time--bench', benched);
+}
+
+// Position colour modifier for the position button (grey when unset).
+function posClass(pos) {
+  return pos ? `alek-strip__pos--${pos}` : '';
+}
+
+// Shrink a team-name element's font until the whole name fits on one line, so
+// long names scale down instead of wrapping or getting clipped.
+function fitTeamName(el) {
+  if (!el) return;
+  const MAX = 1.6, MIN = 0.72, STEP = 0.04;
+  let size = MAX;
+  el.style.fontSize = size + 'rem';
+  let guard = 30;
+  while (el.scrollWidth > el.clientWidth && size > MIN && guard-- > 0) {
+    size -= STEP;
+    el.style.fontSize = size + 'rem';
+  }
+}
+
+function fitTeamNames() {
+  document.querySelectorAll('.scoreboard__name').forEach(fitTeamName);
+}
+
 function runBtnInner() {
   if (!G.gameStarted)          return `${icon('play')}<span>START</span>`;
   if (G.status === 'running')  return `${icon('pause')}<span>RUNNING</span>`;
@@ -222,6 +272,15 @@ function updateGameBar() {
   setTxt('q-label',       G.quarter > 4 ? 'FT' : `Q${G.quarter}`);
   setTxt('pos-label',     POS_LBL[String(G.current.position)] ?? '—');
   setTxt('timer-display', fmtTimer(G.timerRemaining));
+
+  // Colour-code the position button (grey unset / blue DEF / yellow MID / red FWD).
+  const posBtn = document.getElementById('pos-btn');
+  if (posBtn && !posBtn.classList.contains('alek-strip__pos--settling')) {
+    posBtn.classList.remove('alek-strip__pos--def', 'alek-strip__pos--mid', 'alek-strip__pos--fwd');
+    const pc = posClass(G.current.position);
+    if (pc) posBtn.classList.add(pc);
+  }
+  updatePlayTime();
 
   const runBtn = document.getElementById('run-btn');
   if (runBtn) {
@@ -380,6 +439,7 @@ function commitPosition() {
   if (!G.events) G.events = [];
   G.events.push({ quarter: start.q, time: start.t, action: 'position', from: start.from, to });
   saveState();
+  updateGameBar();   // refresh position colour + play-time (bench) state
   refreshUndo();
   vibe(30);
 }
@@ -396,6 +456,7 @@ function cancelPositionCycle() {
   _posTimer = null; _posStart = null; _posDisplay = null;
   setPosBtnSettling(false);
   setTxt('pos-label', POS_LBL[String(G.current.position)] ?? '—');
+  updateGameBar();
   refreshUndo();
   vibe(15);
 }
@@ -491,12 +552,17 @@ function endQuarter() {
     return;
   }
 
+  // A player keeps their position into the next quarter unless subbed — carry
+  // it over so play-time and stat attribution stay correct without re-tapping.
+  const carriedPos = G.current.position;
   G.quarter++;
-  G.current        = freshQ();
-  _warned60        = false;
-  G.timerRemaining = G.quarterDuration;
-  G.status         = 'paused';
-  G.timerEndTime   = null;
+  G.current          = freshQ();
+  G.current.position = carriedPos;
+  _warned60          = false;
+  _lastRem           = null;
+  G.timerRemaining   = G.quarterDuration;
+  G.status           = 'paused';
+  G.timerEndTime     = null;
   saveState();
   fullUpdate();
 }
@@ -657,6 +723,7 @@ function buildExportJson() {
       position:  q.position,
       mood:      q.mood,
       notes:     q.notes || '',
+      playSeconds: Math.round(q.playSeconds || 0),
       aleksStats: {
         scoring:   { goals: q.stats.goals, behinds: q.stats.behinds, goalAttempts: q.stats.goalAttempts },
         marks:     { attempts: q.stats.marks,      successful: q.stats.marksOk     },
@@ -675,6 +742,7 @@ function buildExportJson() {
         disposals: { attempts: t.disposals, successful: t.disposalsOk },
         tackles:   { attempts: t.tackles,   successful: t.tacklesOk   },
         points:    t.goals * 6 + t.behinds,
+        playSeconds: Math.round(allQ.reduce((s, q) => s + (q.playSeconds || 0), 0)),
       },
       teamScore: {
         hammondPark: { goals: G.score.hp.goals,  behinds: G.score.hp.behinds,  score: hpT  },
@@ -722,6 +790,7 @@ function copyJson(btnId) {
 
 function showSummary() {
   const t    = getTotals();
+  const playTotal = G.quarters.reduce((s, q) => s + (q.playSeconds || 0), 0);
   const hp   = G.score.hp, opp = G.score.opp;
   const hpT  = calcTotal(hp), oppT = calcTotal(opp);
   const hpWon = hpT > oppT, oppWon = oppT > hpT;
@@ -764,6 +833,7 @@ function showSummary() {
             <span class="summary-q__qnum">Q${i + 1}</span>
             <span class="summary-q__mood">${q.mood ? icon(MOOD_ICON[q.mood]) : '—'}</span>
             <span class="summary-q__pos">${POS_LBL[String(q.position)] ?? '—'}</span>
+            <span class="summary-q__time" title="Time on field">${icon('play', 'summary-q__time-ic')}${fmtTimer(q.playSeconds || 0)}</span>
             <span class="summary-q__stats">
               ${[
                 q.stats.goals        && `${q.stats.goals}G`,
@@ -788,6 +858,10 @@ function showSummary() {
             <label class="debrief-label">WORK ON</label>
             <textarea class="notes-area" id="debrief-work" placeholder="One thing to improve next game…">${G.debrief?.workOn || ''}</textarea>
           </div>
+        </div>
+        <div class="summary-stat-row">
+          <span class="summary-stat-lbl">Time on field</span>
+          <span class="summary-stat-val">${fmtTimer(playTotal)}</span>
         </div>
         <div class="summary-stat-row">
           <span class="summary-stat-lbl">Goals · Behinds · Shots</span>
@@ -976,7 +1050,11 @@ export async function renderTracker(lang, round) {
           <span class="alek-strip__name">${icon('star', 'alek-strip__star')} #${_player.number}</span>
           <span class="alek-strip__stats" id="alek-stats">—</span>
         </div>
-        <button class="alek-strip__pos" id="pos-btn" aria-label="Position — tap to change">
+        <div class="alek-strip__time-wrap">
+          <span class="alek-strip__time-cap">Q TIME</span>
+          <span class="alek-strip__time" id="play-time">${fmtTimer(G.current.playSeconds || 0)}</span>
+        </div>
+        <button class="alek-strip__pos ${posClass(G.current.position)}" id="pos-btn" aria-label="Position — tap to change">
           <span class="alek-strip__pos-cap">POS</span>
           <span class="alek-strip__pos-lbl" id="pos-label">${POS_LBL[String(G.current.position)] ?? '—'}</span>
         </button>
@@ -1067,4 +1145,8 @@ export async function renderTracker(lang, round) {
   attachStatPress(document.getElementById('btn-mark'),     'marks');
 
   fullUpdate();
+  // Fit team names to one line now and on resize/orientation change.
+  requestAnimationFrame(fitTeamNames);
+  window.removeEventListener('resize', fitTeamNames);
+  window.addEventListener('resize', fitTeamNames);
 }

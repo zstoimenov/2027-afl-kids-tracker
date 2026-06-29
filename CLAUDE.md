@@ -155,6 +155,8 @@ Results in `fixtures.json` are placeholders — they are overridden at runtime b
 - For stat actions: `ok` is `true` for successful, `false` for attempt; `position` is current position
 - Historical games (rounds 1–9, 2026) predate the events stream and have `events: []`. The timeline graph and by-position breakdown only render when events are present.
 
+**Play time:** each quarter carries `playSeconds` (on-field time — clock running and not benched) and `totals.aleksStats.playSeconds` is the game total. Bench = position `null` (a substitution off). Position carries across quarters unless changed. Historical games omit `playSeconds`; the time columns/lines render only when present.
+
 ### stories/story-YYYY-MM-DD.json
 
 ```json
@@ -311,7 +313,7 @@ When writing a season arc, Claude receives all game JSON files and produces a na
 `docs/sw.js` caches the app shell (cache-first) and data files (network-first, fallback).
 
 **Cache names:**
-- Shell: `afl-shell-v34` — bump the version number (v35, v36, …) whenever any shell asset changes
+- Shell: `afl-shell-v36` — bump the version number (v37, v38, …) whenever any shell asset changes
 - Data: `afl-data-v1` — bump only if the data fetch strategy changes
 
 **When to bump the shell cache:** any change to HTML, CSS, JS, or icon files. The SW activate event deletes old caches automatically, so bumping ensures users get the new files.
