@@ -329,6 +329,9 @@
   opacity: 0.85;
 }
 
+/* BG side: the "tap to read the story" prompt is yellow, not green. */
+.fixture-card__hint--bg { color: #facc15; }
+
 .fixture-card__hint-arr { width: 13px; height: 13px; }
 
 /* TBD: faint, awaiting details */

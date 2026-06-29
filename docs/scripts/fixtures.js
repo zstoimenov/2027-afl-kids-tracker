@@ -258,14 +258,17 @@ function scoreRow(round, lang, state) {
 async function loadStoryMeta(year) {
   try {
     const resp = await fetch(`./data/stories/${year}.json`);
-    if (!resp.ok) return { rounds: new Set(), prologue: null };
+    if (!resp.ok) return { rounds: new Set(), titles: {}, prologue: null };
     const data = await resp.json();
+    const titles = {};
+    (data.rounds || []).forEach(r => { if (r.title) titles[r.round] = chapterShort(r.title); });
     return {
       rounds:   new Set((data.rounds || []).map(r => r.round)),
+      titles,
       prologue: data.prologue || null,
     };
   } catch {
-    return { rounds: new Set(), prologue: null };
+    return { rounds: new Set(), titles: {}, prologue: null };
   }
 }
 
@@ -274,9 +277,14 @@ function prologueShort(title) {
   return (title || '').replace(/^Пролог\s*[—–-]\s*/i, '').trim() || title || 'Пролог';
 }
 
+// "Глава 1 — Първата стъпка" → "Първата стъпка"
+function chapterShort(title) {
+  return (title || '').replace(/^Глава\s*\d+\s*[—–-]\s*/i, '').trim() || title || '';
+}
+
 /* ---- Full card ---- */
 
-function buildCard(round, lang, today, year, storyRounds, gameDates, headlines) {
+function buildCard(round, lang, today, year, storyRounds, storyTitles, gameDates, headlines) {
   const state   = gameState(round, today);
   const isEn    = lang === 'en';
   const classes = ['fixture-card'];
@@ -286,8 +294,13 @@ function buildCard(round, lang, today, year, storyRounds, gameDates, headlines) 
   if (round.homeAway === 'home')      classes.push('fixture-card--home');
   else if (round.homeAway === 'away') classes.push('fixture-card--away');
 
-  // Story headline only once the game is recorded (has a saved game file).
-  const headline = (round.date && gameDates.has(round.date)) ? headlines[round.date] : null;
+  // Story title once the game is recorded. EN uses the per-game match-report
+  // headline; BG uses the season chapter title (its per-game headlines are
+  // empty, and the chapter title is already the BG "story title").
+  let headline = null;
+  if (round.date && gameDates.has(round.date)) {
+    headline = isEn ? (headlines[round.date] || null) : (storyTitles[round.round] || null);
+  }
   const inner = lang === 'bg' ? cardBg(round, state, headline) : cardEn(round, state, headline);
 
   // Tapping the whole card opens the relevant screen — no buttons.
@@ -309,7 +322,7 @@ function buildCard(round, lang, today, year, storyRounds, gameDates, headlines) 
   if (tap) classes.push('fixture-card--tappable');
 
   const hintHtml = hint
-    ? `<div class="fixture-card__hint">${hint} ${icon('chevron', 'fixture-card__hint-arr')}</div>`
+    ? `<div class="fixture-card__hint${isEn ? '' : ' fixture-card__hint--bg'}">${hint} ${icon('chevron', 'fixture-card__hint-arr')}</div>`
     : '';
 
   return `
@@ -405,7 +418,7 @@ export async function renderFixtures(lang) {
       // Discover which rounds (and prologue) have a story for THIS season.
       const story = lang === 'bg'
         ? await loadStoryMeta(year)
-        : { rounds: new Set(), prologue: null };
+        : { rounds: new Set(), titles: {}, prologue: null };
 
       // Which dates have a saved game file (→ tappable report / story title).
       const gameDates = new Set(Object.keys(results));
@@ -422,7 +435,7 @@ export async function renderFixtures(lang) {
           <span class="prologue-card__arrow">${icon('chevron')}</span>
         </button>` : '';
 
-      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds, gameDates, headlines)).join('');
+      list.innerHTML = prologueHtml + currentRounds.map(r => buildCard(r, lang, today, year, story.rounds, story.titles, gameDates, headlines)).join('');
       attachListeners();
 
       const todayCard = list.querySelector('[data-state="today"]');

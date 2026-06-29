@@ -21,15 +21,18 @@ const HASHES = {
   bg: 'a7253649957f9947ced080c343f353643603b9f393d785a2ff198e4c1896824f', // Bulgarian side
 };
 
-const sessionKey = side => `afl.auth.${side}`;
+const storeKey = side => `afl.auth.${side}`;
 
+// Unlock persists across app opens (localStorage), not just the tab session —
+// this is a private family PWA, so re-entering the password on every cold start
+// is just friction. Cleared only by clearing site data.
 export function isUnlocked(side) {
-  try { return sessionStorage.getItem(sessionKey(side)) === '1'; }
+  try { return localStorage.getItem(storeKey(side)) === '1'; }
   catch { return false; }
 }
 
 function unlock(side) {
-  try { sessionStorage.setItem(sessionKey(side), '1'); } catch { /**/ }
+  try { localStorage.setItem(storeKey(side), '1'); } catch { /**/ }
 }
 
 async function sha256Hex(str) {

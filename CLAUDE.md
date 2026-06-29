@@ -326,12 +326,19 @@ The active development branch is `claude/afl-junior-league-ui-0m2avd`. Push ther
 
 ### Recording a game (end to end)
 
-1. Track the game in the tracker; tap **Copy JSON** at the summary screen.
-2. In GitHub Mobile, create `docs/data/games/game-YYYY-MM-DD.json` and paste.
-3. Add the date string to the `games` array in `docs/data/games/index.json`.
-4. Generate a story (see `docs/data/stories/GENERATION.md`) and save as `docs/data/stories/story-YYYY-MM-DD.json`.
-5. Add the date string to the `stories` array in `docs/data/stories/index.json`.
-6. The result appears on Fixtures, and the report appears in Match Reports, automatically.
+The full pipeline is documented in **`GAME-WORKFLOW.md`** at the repo root —
+read it when a game JSON is pasted in. In short:
+
+1. Zak tracks the game in the tracker; taps **Copy JSON** at the summary screen.
+2. Zak pastes the JSON into Claude Code.
+3. Claude Code reads `GAME-WORKFLOW.md` and produces all four outputs: the game
+   file + `games/index.json`, the per-game match report (EN + BG) +
+   `stories/index.json`, a new BG season chapter in `stories/YYYY.json`, and a
+   refreshed season arc in `stories/season-YYYY.json`.
+4. Claude Code pushes to the dev branch and opens a PR; Zak confirms it.
+
+Story craft detail (length, tone, guardrails) lives in
+`docs/data/stories/GENERATION.md`.
 
 ### File serving
 

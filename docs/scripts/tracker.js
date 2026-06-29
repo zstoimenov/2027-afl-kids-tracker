@@ -809,11 +809,9 @@ function showSummary() {
 
       <div class="summary-footer">
         <div class="game-export-card">
-          <div class="game-export-card__label">NEW FILE IN GITHUB MOBILE</div>
-          <div class="game-export-card__path">docs/data/games/game-${G.date}.json</div>
-          <div class="game-export-card__hint">Add file → Create new file → paste</div>
+          <div class="game-export-card__label">SAVE THIS GAME</div>
           <button class="summary-copy-btn" id="sum-export">COPY JSON</button>
-          <div class="game-export-card__hint">Then add <strong>"${G.date}"</strong> to <span class="game-export-card__path">docs/data/games/index.json</span> so the result shows on Fixtures.</div>
+          <div class="game-export-card__hint">Paste it into <strong>Claude Code</strong> — it writes the game file, match reports (EN + BG), the BG season chapter, refreshes the season arc, and opens a PR for you to confirm.</div>
         </div>
         <div class="summary-footer__row">
           <button class="summary-new-btn" id="sum-new">+ NEW GAME</button>
@@ -951,7 +949,7 @@ export async function renderTracker(lang, round) {
         <button class="ctrl-back" id="back-btn" aria-label="Back">${icon('back')}</button>
         <div class="ctrl-fixture">
           <span class="ctrl-fixture__rd">${rdLabel}</span>
-          <span class="ctrl-fixture__opp">${oppShort}</span>
+          <span class="ctrl-fixture__opp">${oppName}</span>
         </div>
         <button class="ctrl-undo" id="undo-btn" disabled>${icon('undo')}<span>UNDO</span></button>
         ${menuButtonHtml(lang, 'tracker', TRACKER_MENU_EXTRAS)}

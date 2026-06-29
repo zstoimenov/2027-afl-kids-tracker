@@ -1,5 +1,10 @@
 # Story generation — prompt & process
 
+> The full end-to-end game pipeline (what to produce when a game JSON is pasted,
+> and how to ship it) lives in **`GAME-WORKFLOW.md`** at the repo root. This file
+> is the story-craft detail it refers to: length, tone, and guardrails.
+
+
 Claude writes the stories. The app only stores and displays them. Stories are
 generated **once per game** from that game's JSON and saved; they are never
 regenerated unless explicitly asked.
