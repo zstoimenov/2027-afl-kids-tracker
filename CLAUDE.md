@@ -6,9 +6,23 @@ This file is the canonical briefing for any Claude session working on this repo.
 
 ## What this project is
 
-A personal PWA for tracking AFL Kids League games for Alek (#13, Hammond Park Hurricanes Blue). It generates Fox Footy-style match reports and season narratives in English (for Alek) and Bulgarian (for his grandparents). Hosted as a static app on GitHub Pages from `/docs`.
+A personal PWA for tracking AFL Junior League games for Alek (#13, Hammond Park Hurricanes Blue). It generates Fox Footy-style match reports and season narratives in English (for Alek) and Bulgarian (for his grandparents). Hosted as a static app on GitHub Pages from `/docs`.
 
 **Not a team app. Not a public app.** One player, two audiences, one device per game.
+
+---
+
+## The people
+
+| Person | Role | Language | Access |
+|---|---|---|---|
+| Zak (dad) | Designer, stat logger, primary user | English | Tracker password |
+| Alek | Player, report reader (8 in 2026; `season-config.json` has birth year) | English | Set up by Zak |
+| Grandparents | Fans following from Bulgaria | Bulgarian | Family password |
+
+**About Alek:** Plays for Hammond Park Blue (#13). Loves feeling like a real AFL star. The match reports are written so he feels like he's reading about himself in The Age sports section. The stories help him and Zak identify areas of improvement.
+
+**Club details:** Hammond Park Hurricanes · Home ground: Frankland Park · Home colours: green/white · Away: white/green.
 
 ---
 
@@ -233,9 +247,9 @@ Tracker registers `TRACKER_MENU_EXTRAS = [{action:'newgame', ic:'play', label:'N
 1. Stats summary (totals)
 2. Score timeline (SVG worm — only renders when `game.events` has scoring entries)
 3. By-position breakdown (only renders when `game.events` has position-change entries)
-4. Coach notes
+4. Broadcast Analysis (coach notes)
 5. Headline
-6. Commentator narrative
+6. The Play-by-Play (commentator narrative)
 
 ### Timeline graph
 
@@ -258,12 +272,46 @@ const POS_FULL = {
 
 ---
 
+## Story generation (Claude's role)
+
+Claude does not handle data storage or calculations — it writes stories only. Stories are generated once, saved to file, and never regenerated unless explicitly requested.
+
+### Story structure per game
+
+**English:**
+- `headline` — punchy match headline
+- `commentator` — Fox Footy broadcast style. Energetic, specific, AFL broadcast voice. Alek loves feeling like a real AFL star.
+- `coach` — warm and constructive. Acknowledges what went well, identifies one or two areas to work on. Uses `debrief.didWell` and `debrief.workOn` as primary input.
+
+**Bulgarian:**
+- Same three fields, translated and adapted in tone
+- Grandparent audience — warm, proud, descriptive. 2–3 rich paragraphs that help someone who wasn't there imagine the game and feel close to Alek.
+
+### Storytelling guardrails
+
+- Stories should feel fresh and specific to this game, never templated
+- Reference specific stats as evidence, not as a list
+- Vary the structure and opening each week
+- Reference position (def/mid/fwd) to contextualise stats
+- Reference quarter mood where it adds colour
+- Coach notes: constructive and encouraging — never harsh for a child of Alek's age
+
+### Input Claude receives when generating a story
+
+Structured JSON containing: game metadata, quarter-by-quarter stats and positions, totals, mood per quarter, quarter notes, post-game debrief (`didWell`, `workOn`), and optional season context for richer storytelling.
+
+### Season arc
+
+When writing a season arc, Claude receives all game JSON files and produces a narrative of Alek's development: key moments, milestones, stat trends, in the commentator/coach dual-voice structure.
+
+---
+
 ## Service worker
 
 `docs/sw.js` caches the app shell (cache-first) and data files (network-first, fallback).
 
 **Cache names:**
-- Shell: `afl-shell-v33` — bump the version number (v34, v35, …) whenever any shell asset changes
+- Shell: `afl-shell-v34` — bump the version number (v35, v36, …) whenever any shell asset changes
 - Data: `afl-data-v1` — bump only if the data fetch strategy changes
 
 **When to bump the shell cache:** any change to HTML, CSS, JS, or icon files. The SW activate event deletes old caches automatically, so bumping ensures users get the new files.
@@ -274,7 +322,7 @@ const POS_FULL = {
 
 ### Branch
 
-All work happens on `claude/phase-1-project-setup-ofhvai`. Push to that branch; the user merges to `main` for Pages deploy.
+The active development branch is `claude/afl-junior-league-ui-0m2avd`. Push there; Zak merges to `main` for Pages deploy. After pushing, always create a Pull Request.
 
 ### Recording a game (end to end)
 
@@ -304,7 +352,7 @@ cd docs && python3 -m http.server 8000
 
 ## Current project status (as of June 2026)
 
-All 7 planned phases are complete, plus a tracker overhaul. The 2026 season (rounds 1–9) is fully documented with game JSON, match reports, and a season arc. The app is live on GitHub Pages.
+All 7 planned phases are complete, plus a tracker overhaul and a UI polish pass. The 2026 season (rounds 1–9) is fully documented with game JSON, match reports, and a season arc. The app is live on GitHub Pages.
 
 ### Phases complete
 
@@ -327,6 +375,15 @@ All 7 planned phases are complete, plus a tracker overhaul. The 2026 season (rou
 - Debounced position cycling: only the final settled position is logged, with a timestamp stamped at the first tap
 - Events stream in exported JSON: per-action timestamps with quarter, time-in-quarter, position
 
+### UI polish pass (June 2026)
+
+- Rebranded from "AFL Kids Tracker" to "AFL Junior League" across all files
+- Landing page fits one screen with no scroll
+- Fixtures: story headline used as card title for recorded games; "HP Blue" → "Hammond Park Blue" in green; no truncation on long team names; improved past-game contrast
+- Match reports: sections renamed ("Broadcast Analysis", "The Play-by-Play"); more separation before headline
+- Tracker duration presets: 15/20/25/30 min; run button is green/yellow/red by state; 1-minute warning vibration + clock pulse; pre-game edit opponent + swap home/away buttons; Alek stats in column layout; scores and team names 50% larger; live lead margin chip in scoreboard
+- BG fixtures: "КР" → "КРЪГ"
+
 ---
 
 ## Known gaps / future work
@@ -339,4 +396,3 @@ All 7 planned phases are complete, plus a tracker overhaul. The 2026 season (rou
 | Fixtures for 2027 season | Add `docs/data/fixtures-2027.json` when schedule is published |
 | Stories for 2027 season | Add `docs/data/stories/2027.json` — picker auto-discovers it |
 | BG chapters 4–9 expanded | Still at original length; chapters 1–3 rewritten to ~3 min reads |
-| GitHub Actions deploy | Documented in README as a future option for hardened secrets; not planned |
