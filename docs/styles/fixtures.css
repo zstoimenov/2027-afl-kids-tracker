@@ -372,8 +372,8 @@
 }
 
 .date-label {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: 1.08rem;
+  font-weight: 700;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -421,9 +421,9 @@
 }
 
 .ha-chip--away {
-  background: rgba(159, 178, 196, 0.12);
-  color: #b9c7d4;
-  box-shadow: inset 0 0 0 1px rgba(159, 178, 196, 0.30);
+  background: rgba(251, 146, 60, 0.18);
+  color: #fb923c;
+  box-shadow: inset 0 0 0 1px rgba(251, 146, 60, 0.34);
 }
 
 /* Subtle home/away accent stripe down the left edge of each card */
@@ -572,12 +572,12 @@
 }
 
 .result-chip {
-  font-size: 0.55rem;
+  font-size: 1.1rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 2px 8px;
-  border-radius: 5px;
+  padding: 4px 16px;
+  border-radius: 8px;
   white-space: nowrap;
 }
 
