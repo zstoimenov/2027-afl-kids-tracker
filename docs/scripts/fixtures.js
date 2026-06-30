@@ -116,6 +116,18 @@ async function loadStoryHeadlines(dates, lang) {
   return map;
 }
 
+/* ---- Venue + time (quiet bottom line, shared by both languages) ---- */
+
+function venueHtml(round, lang) {
+  const timeStr = displayTime(round.time, lang);
+  const venue   = round.ground || (lang === 'bg' ? 'Стадионът предстои' : 'Venue TBD');
+  return `
+    <div class="fixture-card__venue">
+      <span class="venue-name">${venue}</span>
+      ${timeStr ? `<span class="venue-time">${timeStr}</span>` : ''}
+    </div>`;
+}
+
 /* ---- English card ---- */
 
 function cardEn(round, state, headline) {
@@ -127,7 +139,6 @@ function cardEn(round, state, headline) {
     : '';
 
   const todayPill = state === 'today' ? `<span class="today-dot">TODAY</span>` : '';
-  const timeStr   = displayTime(round.time, 'en');
 
   // Recorded games show the match-report headline; otherwise the opponent name.
   const title = headline
@@ -143,11 +154,7 @@ function cardEn(round, state, headline) {
       </div>
       ${haChip}
     </div>
-    ${title}
-    <div class="fixture-card__venue">
-      <span class="venue-name">${round.ground || 'Venue TBD'}</span>
-      ${timeStr ? `<span class="venue-time">${timeStr}</span>` : ''}
-    </div>`;
+    ${title}`;
 }
 
 /* ---- Bulgarian card ---- */
@@ -180,7 +187,6 @@ function cardBg(round, state, headline) {
     : '';
 
   const todayPill = state === 'today' ? `<span class="today-dot">ДНЕС</span>` : '';
-  const timeStr   = displayTime(round.time, 'bg');
 
   // Recorded games show the match-report headline; otherwise the narrative line.
   const title = headline
@@ -196,11 +202,7 @@ function cardBg(round, state, headline) {
       </div>
       ${haChip}
     </div>
-    ${title}
-    <div class="fixture-card__venue">
-      <span class="venue-name">${round.ground || 'Стадионът предстои'}</span>
-      ${timeStr ? `<span class="venue-time">${timeStr}</span>` : ''}
-    </div>`;
+    ${title}`;
 }
 
 /* ---- Score row ---- */
@@ -228,11 +230,11 @@ function scoreRow(round, lang, state) {
   const chipClass = hpWon ? 'win' : oppWon ? 'loss' : 'draw';
   const oppName   = (opponent(round) || 'OPP').toUpperCase();
 
-  // Home team always renders on the LEFT. Total score is dominant; the
-  // goals.behinds breakdown is secondary underneath.
+  // Home team always renders on the LEFT. Only the dominant total is shown on
+  // the card; the goals.behinds breakdown lives in the match report.
   const scoreValue = (t, isHp) => (t.goals === 0 && t.behinds === 0 && t.score === 0)
     ? `<span class="score-team__total score-team__total--none">—</span>`
-    : `<span class="score-team__total${isHp ? ' score-team__total--hp' : ''}">${t.score}</span><span class="score-team__gb">${t.goals}.${t.behinds}</span>`;
+    : `<span class="score-team__total${isHp ? ' score-team__total--hp' : ''}">${t.score}</span>`;
   const isHome   = round.homeAway === 'home';
   const hpBlock  = `<span class="score-team__name score-team__name--hp">Hammond Park Blue</span>${scoreValue(hp, true)}`;
   const oppBlock = `<span class="score-team__name">${oppName}</span>${scoreValue(opp, false)}`;
@@ -329,6 +331,7 @@ function buildCard(round, lang, today, year, storyRounds, storyTitles, gameDates
     <article class="${classes.join(' ')}" data-round="${round.round}" data-state="${state}"${tap ? ` data-tap="${tap}"` : ''}>
       ${inner}
       ${scoreRow(round, lang, state)}
+      ${venueHtml(round, lang)}
       ${hintHtml}
     </article>`;
 }
