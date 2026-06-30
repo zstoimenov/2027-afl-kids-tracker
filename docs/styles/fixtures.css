@@ -372,7 +372,7 @@
 }
 
 .date-label {
-  font-size: 1.08rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
@@ -421,9 +421,9 @@
 }
 
 .ha-chip--away {
-  background: rgba(251, 146, 60, 0.18);
-  color: #fb923c;
-  box-shadow: inset 0 0 0 1px rgba(251, 146, 60, 0.34);
+  background: rgba(234, 179, 8, 0.16);
+  color: #eab308;
+  box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.34);
 }
 
 /* Subtle home/away accent stripe down the left edge of each card */
@@ -548,14 +548,6 @@
 .score-team__total--hp { color: var(--green-accent); }
 .score-team__total--none { color: var(--text-lo); font-weight: 700; }
 
-.score-team__gb {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-lo);
-  letter-spacing: 0.02em;
-  margin-top: 1px;
-}
-
 .score-mid {
   display: flex;
   flex-direction: column;
@@ -572,12 +564,12 @@
 }
 
 .result-chip {
-  font-size: 1.1rem;
+  font-size: 0.62rem;
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 4px 16px;
-  border-radius: 8px;
+  padding: 3px 10px;
+  border-radius: 6px;
   white-space: nowrap;
 }
 
